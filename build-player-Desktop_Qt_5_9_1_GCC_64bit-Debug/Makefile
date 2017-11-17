@@ -214,6 +214,7 @@ DIST          = ../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_pre.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/qt_config.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake.conf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_post.prf \
+		../player/.qmake.stash \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/exclusive_builds.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/toolchain.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/default_pre.prf \
@@ -405,6 +406,7 @@ Makefile: ../player/player.pro ../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/qt_config.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake.conf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/exclusive_builds.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/toolchain.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/default_pre.prf \
@@ -588,6 +590,7 @@ Makefile: ../player/player.pro ../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/qt_config.prf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake.conf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/exclusive_builds.prf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/toolchain.prf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/default_pre.prf:

@@ -1,13 +1,13 @@
 #include "mainwindow.h"
 
-#define PC
-//#define ARM
+//#define PC
+#define ARM
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
 {
     pushButton_open = new QPushButton("open video file");
-    connect(pushButton_silence,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
+    connect(pushButton_open,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
 
     pushButton_silence = new QPushButton("Silence-off");
     connect(pushButton_silence,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
 //    pushButton_volright->setStyleSheet("QPushButton{background-color:transparent;}");
 
     QHBoxLayout *hLayout = new QHBoxLayout;
+    hLayout->addWidget(pushButton_open);
     hLayout->addWidget(pushButton_play);
     hLayout->addWidget(pushButton_volup);
     hLayout->addWidget(pushButton_voldown);
@@ -53,16 +54,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 //    setStyleSheet("QMainWindow{background-color:translucent;}");
     setAttribute(Qt::WA_TranslucentBackground,true);
-
-#ifdef PC
-    play_video("/home/zs/qtBuild/video/test.mp4");
-#endif
-
-#ifdef ARM
-    play_video("/mnt/udisk/video/test.mp4");
-#endif
-
-
 }
 
 MainWindow::~MainWindow()
@@ -158,14 +149,13 @@ void MainWindow::on_pushButton_clicked()
                             "视频文件 (*.flv *.rmvb *.avi *.MP4);; 所有文件 (*.*);; ");
         if (!s.isEmpty())
         {
-//            s.replace("/","");
+        #ifdef PC
+            play_video(s);
+        #endif
 
-//            videoPlayProcess->write("pause\n"); //如果在播放则先停止
-
-            mPlayer->setFileName(s);
-
-            videoPlayProcess->start();
-
+        #ifdef ARM
+            play_video(s);
+        #endif
         }
 
     }
