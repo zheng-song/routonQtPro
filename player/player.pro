@@ -25,7 +25,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    videowidget.cpp \
+    bottomwidget.cpp \
+    mainslider.cpp \
+    volumeslider.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    videowidget.h \
+    bottomwidget.h \
+    mainslider.h \
+    volumeslider.h
+
+RESOURCES += \
+    icon.qrc
