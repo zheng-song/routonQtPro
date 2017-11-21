@@ -13,16 +13,13 @@ MainWindow::MainWindow(QWidget *parent)
     this->setStyleSheet("QWidget{background-color:rgb(60,65,68);}");
     setWindowOpacity(1);         //设置透明度
     setWindowModality(Qt::NonModal);
-
     setMinimumHeight(500);
     setMinimumWidth(720);
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
     setMouseTracking(true);
     setFocusPolicy(Qt::ClickFocus);
-
     normalRect.setWidth(windowIniWidth);
     normalRect.setHeight(windowIniHeight);
-
     setThreeButtton();
 
 
@@ -32,18 +29,12 @@ MainWindow::MainWindow(QWidget *parent)
     menuButton->setStyleSheet("QPushButton{ border-radius:8px; border: none; background-color:rgb(120,125,128);}"
                               "QPushButton:hover{background-color:rgb(200,200,201);} "
                               "QPushButton:checked{background-color:rgb(0,0,1);}");
-
-    titleLabel = new QLabel(this);
-    titleLabel->setGeometry(100,10,500,20);
-    titleLabel->setStyleSheet("QLabel{color:rgb(200,200,200); background-color:rgb(60, 65, 68)}");
-
     menu = new QMenu;
     openAction = menu->addAction(tr("Open"));
     menu->setStyleSheet(" QMenu{border:none } "
                         "QMenu::item{border:none; font-size:13px;  padding-left:20px; background-color:white; height:25px; width:50px; }"
                         "QMenu::item:selected{ background-color:rgb(140,140,240)}");
     connect(openAction,SIGNAL(triggered(bool)),this,SLOT(slotOpenFile()));
-
     menuButton->setMenu(menu);
 
 
@@ -62,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     pushButton_play = new QPushButton(bottomWidget);
     pushButton_play->setGeometry(120,20,50,50);
+    pushButton_play->setToolTip("play");
     pushButton_play->setStyleSheet("QPushButton{image:url(:icon/img/play.png);  border-radius:25px; background-color: rgb(40,40,40)}"
                                    "QPushButton::hover{background-color: rgb(90,90,90); image:url(:/icon/img/playHovered.png)}");
     connect(pushButton_play, SIGNAL(clicked(bool)), this, SLOT(slotPlayVideoBtClicked()));
@@ -69,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     pushButton_stop = new QPushButton(bottomWidget);
     pushButton_stop->setGeometry(20,25,40,40);
+    pushButton_stop->setToolTip("pause");
     pushButton_stop->setStyleSheet("QPushButton{image:url(:icon/img/stop.png); border-radius:20px; background-color: rgb(40,40,40)}"
                                    "QPushButton::hover{background-color: rgb(90,90,90);image:url(:/icon/img/stopHovered.png);}");
     connect(pushButton_stop, SIGNAL(clicked(bool)), this, SLOT(slotStopVideoBtClicked()));
@@ -99,52 +92,6 @@ MainWindow::MainWindow(QWidget *parent)
     volumeLayout->addWidget(volumeSlider);
     volumeWidget->setLayout(volumeLayout);
     volumeWidget->hide();
-
-//    pushButton_silence = new QPushButton("Silence-off");
-//    connect(pushButton_silence,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
-////    pushButton_silence->setFlat(true);
-////    pushButton_silence->setStyleSheet("QPushButton{background-color:transparent;}");
-
-//    pushButton_play = new QPushButton("paly");
-//    connect(pushButton_play,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
-////    pushButton_play->setFlat(true);
-////    pushButton_play->setStyleSheet("QPushButton{background-color:transparent;}");
-
-//    pushButton_volup = new QPushButton("volUp");
-//    connect(pushButton_volup,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
-////    pushButton_volup->setFlat(true);
-////    pushButton_volup->setStyleSheet("QPushButton{background-color:transparent;}");
-
-//    pushButton_voldown = new QPushButton("volDown");
-//    connect(pushButton_voldown,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
-////    pushButton_voldown->setFlat(true);
-////    pushButton_voldown->setStyleSheet("QPushButton{background-color:transparent;}");
-
-//    pushButton_volleft = new QPushButton("volLeft");
-//    connect(pushButton_volleft,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
-////    pushButton_volleft->setFlat(true);
-////    pushButton_volleft->setStyleSheet("QPushButton{background-color:transparent;}");
-
-//    pushButton_volright = new QPushButton("volRight");
-//    connect(pushButton_volright,SIGNAL(clicked()),this,SLOT(on_pushButton_clicked()));
-//    pushButton_volright->setFlat(true);
-//    pushButton_volright->setStyleSheet("QPushButton{background-color:transparent;}");
-
-//    QHBoxLayout *hLayout = new QHBoxLayout;
-//    hLayout->addWidget(pushButton_play);
-//    hLayout->addWidget(pushButton_volup);
-//    hLayout->addWidget(pushButton_voldown);
-//    hLayout->addWidget(pushButton_volleft);
-//    hLayout->addWidget(pushButton_volright);
-
-
-//    QGridLayout *gLayout = new QGridLayout;
-//    gLayout->addLayout(hLayout,0,0,Qt::AlignBottom);
-//    setLayout(gLayout);
-
-
-//    setStyleSheet("QMainWindow{background-color:translucent;}");
-//    setAttribute(Qt::WA_TranslucentBackground,true);
 }
 
 MainWindow::~MainWindow()
@@ -156,16 +103,16 @@ void MainWindow::slotStopVideoBtClicked()
 {
     if(videoPlayProcess->state() == QProcess::Running)
     {
-        videoPlayProcess->write("pause");
+        videoPlayProcess->write("pause\n");
     }
 }
 
 void MainWindow::slotPlayVideoBtClicked()
 {
     if(videoPlayProcess->state() == QProcess::Running) //音量按钮
-        videoPlayProcess->write("pause");
+        videoPlayProcess->write("pause\n");
     if(videoPlayProcess->state() == QProcess::NotRunning)
-        videoPlayProcess->write("pause");
+        videoPlayProcess->write("pause\n");
 }
 
 void MainWindow::slotSetValue(int value)
@@ -191,6 +138,7 @@ void MainWindow::slotVideoWidgetMouseLeftDown()
 
 void MainWindow::slotCloseWidget()
 {
+    videoPlayProcess->close();
     // 杀死创建的进程，结束本程序
     this->close();
 }
@@ -198,7 +146,7 @@ void MainWindow::slotCloseWidget()
 void MainWindow::slotOpenFile()
 {
     QString s = QFileDialog::getOpenFileName(
-                       this, "选择要播放的文件",QDir::currentPath(),
+                       this, "选择要播放的文件",/*QDir::currentPath()*/"/home/zs/qtBuild/video/",
                         "视频文件 (*.flv *.rmvb *.avi *.mp4 *.wav);; 所有文件 (*.*);; ");
     if (!s.isEmpty())
     {
