@@ -197,12 +197,12 @@ void Widget::slotVolumeDown()
 
 void Widget::slotSliderChanged(int value)
 {
-//    qDebug()<<"void Widget::slotSliderChanged(int value is :"<<value<<endl;
+    qDebug()<<"void Widget::slotSliderChanged value is :"<<value<<endl;
 
     //TODO  将视频的播放进度跳转到此处
-    float time =(float)value / 100.0;
-    qDebug()<<"time is: "<<time<<endl;
-    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+//    float time =(float)value / 100.0;
+//    qDebug()<<"time is: "<<time<<endl;
+//    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
 }
 
 void Widget::mouseDoubleClickEvent(QMouseEvent *event)
