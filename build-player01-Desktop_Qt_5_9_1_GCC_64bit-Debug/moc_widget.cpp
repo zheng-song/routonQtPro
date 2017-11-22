@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Widget_t {
-    QByteArrayData data[17];
-    char stringdata0[191];
+    QByteArrayData data[19];
+    char stringdata0[235];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -39,23 +39,26 @@ QT_MOC_LITERAL(4, 26, 8), // "slotStep"
 QT_MOC_LITERAL(5, 35, 12), // "slotBackward"
 QT_MOC_LITERAL(6, 48, 8), // "slotMute"
 QT_MOC_LITERAL(7, 57, 12), // "slotOpenFile"
-QT_MOC_LITERAL(8, 70, 11), // "slotStarted"
-QT_MOC_LITERAL(9, 82, 9), // "slotError"
-QT_MOC_LITERAL(10, 92, 22), // "QProcess::ProcessError"
-QT_MOC_LITERAL(11, 115, 5), // "error"
-QT_MOC_LITERAL(12, 121, 12), // "slotFinished"
-QT_MOC_LITERAL(13, 134, 8), // "exitCode"
-QT_MOC_LITERAL(14, 143, 20), // "QProcess::ExitStatus"
-QT_MOC_LITERAL(15, 164, 10), // "exitStatus"
-QT_MOC_LITERAL(16, 175, 15) // "slotBackMessage"
+QT_MOC_LITERAL(8, 70, 17), // "slotSliderChanged"
+QT_MOC_LITERAL(9, 88, 5), // "value"
+QT_MOC_LITERAL(10, 94, 14), // "slotVolumeDown"
+QT_MOC_LITERAL(11, 109, 12), // "slotVolumeUp"
+QT_MOC_LITERAL(12, 122, 20), // "slotVideoDataReceive"
+QT_MOC_LITERAL(13, 143, 16), // "slotVideoStarted"
+QT_MOC_LITERAL(14, 160, 17), // "slotVideoFinished"
+QT_MOC_LITERAL(15, 178, 8), // "exitCode"
+QT_MOC_LITERAL(16, 187, 20), // "QProcess::ExitStatus"
+QT_MOC_LITERAL(17, 208, 10), // "exitStatus"
+QT_MOC_LITERAL(18, 219, 15) // "slotGetTimeInfo"
 
     },
     "Widget\0slotPlay\0\0slotStop\0slotStep\0"
     "slotBackward\0slotMute\0slotOpenFile\0"
-    "slotStarted\0slotError\0QProcess::ProcessError\0"
-    "error\0slotFinished\0exitCode\0"
-    "QProcess::ExitStatus\0exitStatus\0"
-    "slotBackMessage"
+    "slotSliderChanged\0value\0slotVolumeDown\0"
+    "slotVolumeUp\0slotVideoDataReceive\0"
+    "slotVideoStarted\0slotVideoFinished\0"
+    "exitCode\0QProcess::ExitStatus\0exitStatus\0"
+    "slotGetTimeInfo"
 };
 #undef QT_MOC_LITERAL
 
@@ -65,7 +68,7 @@ static const uint qt_meta_data_Widget[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      13,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -73,16 +76,19 @@ static const uint qt_meta_data_Widget[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   64,    2, 0x09 /* Protected */,
-       3,    0,   65,    2, 0x09 /* Protected */,
-       4,    0,   66,    2, 0x09 /* Protected */,
-       5,    0,   67,    2, 0x09 /* Protected */,
-       6,    0,   68,    2, 0x09 /* Protected */,
-       7,    0,   69,    2, 0x09 /* Protected */,
-       8,    0,   70,    2, 0x09 /* Protected */,
-       9,    1,   71,    2, 0x09 /* Protected */,
-      12,    2,   74,    2, 0x09 /* Protected */,
-      16,    0,   79,    2, 0x09 /* Protected */,
+       1,    0,   79,    2, 0x09 /* Protected */,
+       3,    0,   80,    2, 0x09 /* Protected */,
+       4,    0,   81,    2, 0x09 /* Protected */,
+       5,    0,   82,    2, 0x09 /* Protected */,
+       6,    0,   83,    2, 0x09 /* Protected */,
+       7,    0,   84,    2, 0x09 /* Protected */,
+       8,    1,   85,    2, 0x09 /* Protected */,
+      10,    0,   88,    2, 0x09 /* Protected */,
+      11,    0,   89,    2, 0x09 /* Protected */,
+      12,    0,   90,    2, 0x09 /* Protected */,
+      13,    0,   91,    2, 0x09 /* Protected */,
+      14,    2,   92,    2, 0x09 /* Protected */,
+      18,    0,   97,    2, 0x09 /* Protected */,
 
  // slots: parameters
     QMetaType::Void,
@@ -91,9 +97,12 @@ static const uint qt_meta_data_Widget[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    9,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 10,   11,
-    QMetaType::Void, QMetaType::Int, 0x80000000 | 14,   13,   15,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int, 0x80000000 | 16,   15,   17,
     QMetaType::Void,
 
        0        // eod
@@ -111,10 +120,13 @@ void Widget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 3: _t->slotBackward(); break;
         case 4: _t->slotMute(); break;
         case 5: _t->slotOpenFile(); break;
-        case 6: _t->slotStarted(); break;
-        case 7: _t->slotError((*reinterpret_cast< QProcess::ProcessError(*)>(_a[1]))); break;
-        case 8: _t->slotFinished((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QProcess::ExitStatus(*)>(_a[2]))); break;
-        case 9: _t->slotBackMessage(); break;
+        case 6: _t->slotSliderChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->slotVolumeDown(); break;
+        case 8: _t->slotVolumeUp(); break;
+        case 9: _t->slotVideoDataReceive(); break;
+        case 10: _t->slotVideoStarted(); break;
+        case 11: _t->slotVideoFinished((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QProcess::ExitStatus(*)>(_a[2]))); break;
+        case 12: _t->slotGetTimeInfo(); break;
         default: ;
         }
     }
@@ -145,13 +157,13 @@ int Widget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 13)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 13;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 13)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 10;
+        _id -= 13;
     }
     return _id;
 }

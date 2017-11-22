@@ -18,7 +18,10 @@ public:
     void play(const QString &fileName);
     void controlCmd(const QString &cmd);
 
+    QProcess    * mplayerProcess;
+
 signals:
+
     void started();
     void error(QProcess::ProcessError);
     void finished(int, QProcess::ExitStatus);
@@ -28,9 +31,13 @@ protected:
     void resizeEvent(QResizeEvent * event);
     void mouseDoubleClickEvent(QMouseEvent *);
 
+private slots:
+//    void slotVideoDataReceive();
+//    void slotVideoStarted();
+//    void slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
 private:
     QWidget     * renderTarget;
-    QProcess    * mplayerProcess;
     QTimer      * timer;
     int         isDoubleClick;
 };

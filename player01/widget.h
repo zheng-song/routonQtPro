@@ -27,14 +27,19 @@ protected slots:
     void slotStep(); 		// 步进
     void slotBackward(); 	// 后退
     void slotMute();        // 静音
-
     void slotOpenFile();
 
-    void slotStarted();
-    void slotError(QProcess::ProcessError error);
-    void slotFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void slotBackMessage();
+    void slotSliderChanged(int value);
+    void slotVolumeDown();
+    void slotVolumeUp();
 
+
+    void slotVideoDataReceive();
+    void slotVideoStarted();
+    void slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void slotGetTimeInfo();
+
+//    void slotSliderMoved(int position);
 
 private:
     Player * player;
@@ -45,14 +50,19 @@ private:
     QPushButton * stepButton;
     QPushButton * backwardButton;
     QPushButton * muteButton;
-
+    QPushButton * volUp;
+    QPushButton * volDown;
+    QPushButton * doubleSpeed;
     QSlider     * videoSlider;
+
     QHBoxLayout * buttonLayout;
 
+    QTimer      * videoTime;
     QString currentFileName;
 
-    QTimer      * timer;
-
+    float       videoSpeed;
+    int         videoTotalTime;
+    int         videoCurrTime;
     int         isDoubleClicked;
 };
 

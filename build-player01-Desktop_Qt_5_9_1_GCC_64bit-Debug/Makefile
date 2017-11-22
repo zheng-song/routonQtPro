@@ -220,7 +220,6 @@ DIST          = ../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_pre.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/qt_config.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake.conf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_post.prf \
-		../player01/.qmake.stash \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/exclusive_builds.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/toolchain.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/default_pre.prf \
@@ -414,7 +413,6 @@ Makefile: ../player01/player01.pro ../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/q
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/qt_config.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake.conf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/exclusive_builds.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/toolchain.prf \
 		../../app/QT/5.9.1/gcc_64/mkspecs/features/default_pre.prf \
@@ -599,7 +597,6 @@ Makefile: ../player01/player01.pro ../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/q
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/qt_config.prf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/linux-g++/qmake.conf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/spec_post.prf:
-.qmake.stash:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/exclusive_builds.prf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/toolchain.prf:
 ../../app/QT/5.9.1/gcc_64/mkspecs/features/default_pre.prf:
@@ -675,8 +672,10 @@ qrc_icon.cpp: ../player01/icon.qrc \
 		../player01/images/vocal.png \
 		../player01/images/play.png \
 		../player01/images/mute.png \
+		../player01/images/volume.png \
 		../player01/images/openfile.png \
 		../player01/images/backward.png \
+		../player01/images/volumeHovered.png \
 		../player01/images/pause.png
 	/home/zs/app/QT/5.9.1/gcc_64/bin/rcc -name icon ../player01/icon.qrc -o qrc_icon.cpp
 
@@ -789,6 +788,10 @@ moc_widget.cpp: ../../app/QT/5.9.1/gcc_64/include/QtWidgets/QWidget \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/qfiledevice.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qvector2d.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qtouchdevice.h \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QMainWindow \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmainwindow.h \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabwidget.h \
+		../../app/QT/5.9.1/gcc_64/include/QtGui/qicon.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QtWidgets \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QtWidgetsDepends \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/QtCore \
@@ -928,7 +931,6 @@ moc_widget.cpp: ../../app/QT/5.9.1/gcc_64/include/QtWidgets/QWidget \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/QRect \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qsurface.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qsurfaceformat.h \
-		../../app/QT/5.9.1/gcc_64/include/QtGui/qicon.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qbitmap.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qclipboard.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qdesktopservices.h \
@@ -1013,7 +1015,6 @@ moc_widget.cpp: ../../app/QT/5.9.1/gcc_64/include/QtWidgets/QWidget \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qabstractslider.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qstyle.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabbar.h \
-		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabwidget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qrubberband.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qframe.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qabstractitemview.h \
@@ -1085,7 +1086,6 @@ moc_widget.cpp: ../../app/QT/5.9.1/gcc_64/include/QtWidgets/QWidget \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlcdnumber.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlistview.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlistwidget.h \
-		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmainwindow.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmdiarea.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmdisubwindow.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmenu.h \
@@ -1366,6 +1366,10 @@ main.o: ../player01/main.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/qfiledevice.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qvector2d.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qtouchdevice.h \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QMainWindow \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmainwindow.h \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabwidget.h \
+		../../app/QT/5.9.1/gcc_64/include/QtGui/qicon.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QtWidgets \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QtWidgetsDepends \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/QtCore \
@@ -1505,7 +1509,6 @@ main.o: ../player01/main.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/QRect \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qsurface.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qsurfaceformat.h \
-		../../app/QT/5.9.1/gcc_64/include/QtGui/qicon.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qbitmap.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qclipboard.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qdesktopservices.h \
@@ -1590,7 +1593,6 @@ main.o: ../player01/main.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qabstractslider.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qstyle.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabbar.h \
-		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabwidget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qrubberband.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qframe.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qabstractitemview.h \
@@ -1662,7 +1664,6 @@ main.o: ../player01/main.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlcdnumber.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlistview.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlistwidget.h \
-		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmainwindow.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmdiarea.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmdisubwindow.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmenu.h \
@@ -1821,6 +1822,10 @@ widget.o: ../player01/widget.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/qfiledevice.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qvector2d.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qtouchdevice.h \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QMainWindow \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmainwindow.h \
+		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabwidget.h \
+		../../app/QT/5.9.1/gcc_64/include/QtGui/qicon.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QtWidgets \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/QtWidgetsDepends \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/QtCore \
@@ -1960,7 +1965,6 @@ widget.o: ../player01/widget.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtCore/QRect \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qsurface.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qsurfaceformat.h \
-		../../app/QT/5.9.1/gcc_64/include/QtGui/qicon.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qbitmap.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qclipboard.h \
 		../../app/QT/5.9.1/gcc_64/include/QtGui/qdesktopservices.h \
@@ -2045,7 +2049,6 @@ widget.o: ../player01/widget.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qabstractslider.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qstyle.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabbar.h \
-		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qtabwidget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qrubberband.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qframe.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qabstractitemview.h \
@@ -2117,7 +2120,6 @@ widget.o: ../player01/widget.cpp ../player01/widget.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlcdnumber.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlistview.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qlistwidget.h \
-		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmainwindow.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmdiarea.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmdisubwindow.h \
 		../../app/QT/5.9.1/gcc_64/include/QtWidgets/qmenu.h \

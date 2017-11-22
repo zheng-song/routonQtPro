@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent,Qt::WindowFlags f)
     playVideo->move(0,450);
 //    playVideo->setAutoFillBackground(true);
 //    playVideo->setFlat(true);
-    playVideo->setStyleSheet("QPushButton{background-color:transparent;}");
+//    playVideo->setStyleSheet("QPushButton{background-color:transparent;}");
 
     quitAPP = new QPushButton("&Exit",this);
     connect(quitAPP,SIGNAL(clicked()),this,\

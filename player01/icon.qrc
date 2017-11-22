@@ -8,5 +8,7 @@
         <file>images/openfile.png</file>
         <file>images/mute.png</file>
         <file>images/backward.png</file>
+        <file>images/volumeHovered.png</file>
+        <file>images/volume.png</file>
     </qresource>
 </RCC>

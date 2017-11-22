@@ -12,11 +12,6 @@ Player::Player(QWidget * parent)
     isDoubleClick = 0;
 
     mplayerProcess = new QProcess(this);
-    connect(mplayerProcess, SIGNAL(started()), this, SIGNAL(started()));
-    connect(mplayerProcess, SIGNAL(error(QProcess::ProcessError)), this, SIGNAL(error(QProcess::ProcessError)));
-    connect(mplayerProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SIGNAL(finished(int, QProcess::ExitStatus)));
-    connect(mplayerProcess, SIGNAL(readyReadStandardOutput()), this, SIGNAL(readyReadStandardOutput()));
 }
 
 Player::~Player()
@@ -25,11 +20,14 @@ Player::~Player()
 
 void Player::play(const QString &fileName)
 {
-    if(mplayerProcess->state() == QProcess::Running)
-    {
-        qDebug()<<"close before media"<<endl;
-        mplayerProcess->close();
-    }
+    mplayerProcess->kill();              // kill the old process
+    mplayerProcess = new QProcess(this); // create a new process
+    mplayerProcess->setProcessChannelMode(QProcess::MergedChannels);
+
+    connect(mplayerProcess,SIGNAL( readyReadStandardOutput() ),this,SIGNAL(readyReadStandardOutput() ));
+    connect(mplayerProcess,SIGNAL( started() ),this,SIGNAL( started() ));
+    connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),\
+            this,SIGNAL(finished(int,QProcess::ExitStatus)));
 
     QStringList args;
     QString programs;
@@ -49,8 +47,8 @@ void Player::play(const QString &fileName)
 #endif
     args << fileName;
     mplayerProcess->start(programs, args);
-    emit started();
 }
+
 
 void Player::mouseDoubleClickEvent(QMouseEvent *event)
 {
@@ -58,11 +56,9 @@ void Player::mouseDoubleClickEvent(QMouseEvent *event)
 
     if(event->buttons() == Qt::LeftButton)
     {
-        qDebug()<<"1"<<endl;
         isDoubleClick++;
         if(isDoubleClick == 1)
         {
-            qDebug()<<"2"<<endl;
             timer->start(300);
         }
 
@@ -74,12 +70,10 @@ void Player::mouseDoubleClickEvent(QMouseEvent *event)
             timer->stop();
             if(this->isFullScreen())
             {
-                qDebug()<<"4"<<endl;
                 this->showMinimized();
             }
             else
             {
-                qDebug()<<"5"<<endl;
                 this->showFullScreen();
             }
         }
@@ -97,32 +91,5 @@ void Player::resizeEvent(QResizeEvent * event)
     renderTarget->resize(event->size());
 }
 
-/*
-void Player::slotStarted(const QString &fileName)
-{
-    qDebug() << "mplayer started ...";
 
-}
-*/
 
-//void Player::slotError(QProcess::ProcessError /*error*/)
-//{
-//	qDebug() << "player error.";
-//}
-//void Player::slotFinished(int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/)
-//{
-//	qDebug() << "mplayer finished.";
-//}
-/*
-void Player::slotBackMessage()
-{
-    while( mplayerProcess->canReadLine() )
-    {
-        QString message(mplayerProcess->readLine());
-        // message 即为读取的信息，我们可以根据需要取我们要的信息如：
-        // 文件总时间为：ANS_LENGTH=23.00
-        // 当前时间为：ANS_TIME_POSITION=23.00
-        qDebug() << message;
-    }
-}
-*/
