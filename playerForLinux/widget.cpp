@@ -7,15 +7,28 @@ Widget::Widget(QWidget *parent)
     // set background
     // but still have a problem:the picture is not fit the size of widget
     this->setAutoFillBackground(true);
-    this->setStyleSheet("background:{}");
     QPalette palette;
     palette.setBrush(QPalette::Background,QBrush(QPixmap(":/images/background.jpg")));
     this->setPalette(palette);
+
+//用来控制窗口的透明度，这个特性可以用于支持复合扩展的嵌入式Linux，OS X，windows和X11平台
+//这个特性在我的Windows上有效，Ubuntu17.04 Linux PC上无效。
+//注意：在X11下需要一个运行的复合管理器(composite manager),
+//并且X11指定 _NET_WM_WINDOW_OPACITY atom需要被你正在使用的窗口管理器支持。
+    this->setWindowOpacity(0.5);
 }
 
 Widget::~Widget()
 {
 
+}
+
+void Widget::paintEvent()
+{
+    QStyleOption opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget,&opt,&p,this);
 }
 //
 //QPoint MainWindow::videoWidgetPosition(QPoint(0,0));
