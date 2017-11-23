@@ -49,7 +49,7 @@ void Player::play(const QString &fileName)
     mplayerProcess->start(programs, args);
 }
 
-
+#ifdef PC
 void Player::mouseDoubleClickEvent(QMouseEvent *event)
 {
     qDebug()<<"in mouseDoubleClickEvent!!!!"<<endl;
@@ -79,6 +79,7 @@ void Player::mouseDoubleClickEvent(QMouseEvent *event)
         }
     }
 }
+#endif
 
 
 void Player::controlCmd(const QString &cmd)
