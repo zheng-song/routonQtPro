@@ -1,4 +1,15 @@
-#include "mainwindow.h"
+#include "widget.h"
+
+Widget::Widget(QWidget *parent)
+    : QWidget(parent)
+{
+    this->setAutoFillBackground(true);
+}
+
+Widget::~Widget()
+{
+
+}
 
 QPoint MainWindow::videoWidgetPosition(QPoint(0,0));
 
