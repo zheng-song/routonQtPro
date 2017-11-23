@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/icon">
-        <file>images/vocal.png</file>
         <file>images/stop.png</file>
         <file>images/step.png</file>
         <file>images/play.png</file>
@@ -10,5 +9,6 @@
         <file>images/backward.png</file>
         <file>images/volumeHovered.png</file>
         <file>images/volume.png</file>
+        <file>images/closeHovered.png</file>
     </qresource>
 </RCC>

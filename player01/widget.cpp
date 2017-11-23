@@ -1,4 +1,5 @@
 #include "widget.h"
+#include "unistd.h"
 
 Widget::Widget(QWidget *parent)
     : QMainWindow(parent),currentFileName(""),
@@ -10,7 +11,7 @@ Widget::Widget(QWidget *parent)
     setWindowModality(Qt::WindowModal);
 //    setWindowOpacity(1);
     setAttribute(Qt::WA_TranslucentBackground,true);
-//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 
     openFileButton = new QPushButton(QIcon(tr(":/icon/images/openfile.png")), tr(""));
     openFileButton->setFlat(true);//设置按钮无边框
@@ -23,10 +24,15 @@ Widget::Widget(QWidget *parent)
     connect(playButton, SIGNAL(clicked()), this, SLOT(slotPlay()));
 
     stopButton = new QPushButton(QIcon(tr(":/icon/images/stop.png")), tr(""));
-    stopButton->setToolTip("quit");
+    stopButton->setToolTip("close");
     stopButton->setFlat(true);
     stopButton->setEnabled(false);
     connect(stopButton, SIGNAL(clicked()), this, SLOT(slotStop()));
+
+    closeButton = new QPushButton(QIcon(":/icon/images/closeHovered.png"),"");
+    closeButton->setToolTip("quit");
+    closeButton->setFlat(true);
+    connect(closeButton,SIGNAL(clicked(bool)),this,SLOT(slotCloseAPP()));
 
     backwardButton = new QPushButton(QIcon(tr(":/icon/images/backward.png")), tr(""));
     backwardButton->setEnabled(false);
@@ -51,7 +57,7 @@ Widget::Widget(QWidget *parent)
     connect(volDown,SIGNAL(clicked(bool)),this,SLOT(slotVolumeDown()));
 
 
-    muteButton = new QPushButton(QIcon(tr(":/icon/images/vocal.png")), tr(""));
+    muteButton = new QPushButton(QIcon(tr(":/icon/images/mute.png")), tr(""));
     muteButton->setToolTip("mute-off");
     muteButton->setFlat(true);
     muteButton->setEnabled(false);
@@ -61,6 +67,7 @@ Widget::Widget(QWidget *parent)
     videoSlider = new QSlider(Qt::Horizontal);
     videoSlider->setEnabled(false);
     connect(videoSlider, SIGNAL(valueChanged(int)),this,SLOT(slotSliderChanged(int)));
+    connect(videoSlider,SIGNAL(sliderReleased()),this,SLOT(slotSliderReleased()));
 
 
     buttonLayout = new QHBoxLayout();
@@ -73,9 +80,11 @@ Widget::Widget(QWidget *parent)
     buttonLayout->addWidget(stepButton);
     buttonLayout->addWidget(volUp);
     buttonLayout->addWidget(muteButton);
+    buttonLayout->addWidget(closeButton);
 
     player = new Player();
     player->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    player->setAutoFillBackground(true);
     player->setAttribute(Qt::WA_TranslucentBackground,true);
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
@@ -105,6 +114,20 @@ Widget::Widget(QWidget *parent)
 Widget::~Widget()
 { }
 
+void Widget::slotSliderReleased()
+{
+    qDebug()<<"videoSlider->value():"<<videoSlider->value()<<endl;
+    float time =(float)(videoSlider->value()) / 100.0;
+    qDebug()<<"time is: "<<time<<endl;
+    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+}
+
+void Widget::slotCloseAPP()
+{
+    player->controlCmd("quit\n");
+    this->close();
+}
+
 void Widget::slotGetTimeInfo()
 {
     if(playButton->toolTip() == "pause")
@@ -120,8 +143,8 @@ void Widget::slotVideoStarted()
     player->controlCmd("get_time_length \n");
 
     videoSlider->setValue(0);
-    videoSlider->setSingleStep(1);
-    videoSlider->setPageStep(1);
+    videoSlider->setSingleStep(200);
+    videoSlider->setPageStep(500);
 
     stopButton->setEnabled(true);
     stepButton->setEnabled(true);

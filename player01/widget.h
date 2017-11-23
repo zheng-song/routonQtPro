@@ -38,6 +38,8 @@ protected slots:
     void slotVideoStarted();
     void slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void slotGetTimeInfo();
+    void slotCloseAPP();
+    void slotSliderReleased();
 
 //    void slotSliderMoved(int position);
 
@@ -54,6 +56,7 @@ private:
     QPushButton * volDown;
     QPushButton * doubleSpeed;
     QSlider     * videoSlider;
+    QPushButton * closeButton;
 
     QHBoxLayout * buttonLayout;
 
