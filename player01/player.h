@@ -1,11 +1,14 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <QWidget>
+#include <QtWidgets>
 #include <QProcess>
+#include <unistd.h>
 
-#define PC
-//#define ARM
+extern int My_cmdPipeFd;
+
+//#define PC
+#define ARM
 
 class Player : public QWidget
 {

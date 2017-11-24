@@ -6,8 +6,6 @@
 #include <QtWidgets>
 #include "player.h"
 
-#define PC
-//#define ARM
 
 class Widget : public QMainWindow
 {
@@ -18,7 +16,7 @@ public:
     ~Widget();
 
 protected:
-    bool eventFilter(QObject *watched, QEvent *event);
+//    bool eventFilter(QObject *watched, QEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *);
 
 protected slots:
