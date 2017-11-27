@@ -13,12 +13,9 @@ int main(int argc, char *argv[])
     int status;
     QApplication a(argc, argv);
 
-    ;
-
     QFile fifoFile("/tmp/cmd_pipe");
     if(!fifoFile.exists())
         mkfifo("/tmp/cmd_pipe",S_IFIFO | 0777);
-
     My_cmdPipeFd = open("/tmp/cmd_pipe",O_RDWR);
 
     Widget w;

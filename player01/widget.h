@@ -17,7 +17,7 @@ public:
 
 protected:
 //    bool eventFilter(QObject *watched, QEvent *event);
-    void mouseDoubleClickEvent(QMouseEvent *);
+//    void mouseDoubleClickEvent(QMouseEvent *);
 
 protected slots:
     void slotPlay(); 		// 播放
@@ -61,10 +61,10 @@ private:
     QTimer      * videoTime;
     QString currentFileName;
 
-    float       videoSpeed;
-    int         videoTotalTime;
-    int         videoCurrTime;
+    int       videoSpeed;
     int         isDoubleClicked;
+    int         status;
+    int         resultFd;
 };
 
 #endif // WIDGET_H

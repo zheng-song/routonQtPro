@@ -1,16 +1,17 @@
 #include "widget.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
-static int status;
+extern int close(int);
 
 Widget::Widget(QWidget *parent)
     : QMainWindow(parent),currentFileName(""),
-      videoSpeed(1),videoTotalTime(0),
-      videoCurrTime(0),isDoubleClicked(0)
+      videoSpeed(1),isDoubleClicked(0)
 {
     setAutoFillBackground(true);
     setStyleSheet("QWidget{background-color:rgb(255,255,255);}");
-    setWindowModality(Qt::WindowModal);
-//    setWindowOpacity(1);
+//    setWindowModality(Qt::WindowModal);
     setAttribute(Qt::WA_TranslucentBackground,true);
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 
@@ -119,9 +120,19 @@ Widget::~Widget()
 void Widget::slotSliderReleased()
 {
     qDebug()<<"videoSlider->value():"<<videoSlider->value()<<endl;
+#ifdef PC
     float time =(float)(videoSlider->value()) / 100.0;
     qDebug()<<"time is: "<<time<<endl;
     player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+#endif
+
+#ifdef ARM
+    QString tmp;
+    tmp += "a ";
+    tmp += QString::number(videoSlider->value());
+    write(My_cmdPipeFd,(tmp.toLatin1()).data(),sizeof(tmp));
+#endif
+
 }
 
 void Widget::slotCloseAPP()
@@ -134,7 +145,26 @@ void Widget::slotGetTimeInfo()
 {
     if(playButton->toolTip() == "pause")
     {
-        player->controlCmd("get_time_pos \n");
+    #ifdef PC
+        if(playButton->toolTip() == "pause")
+        {
+            player->controlCmd("get_time_pos \n");
+        }
+    #endif
+
+    #ifdef ARM
+        write(My_cmdPipeFd,"c",strlen("c"));
+
+        char *buffer =  (char*)malloc(sizeof(float));
+        read(resultFd,(void *)buffer,sizeof(buffer));
+        int time = ((QString)(QLatin1String(buffer))).toInt();
+        qDebug()<<"current time is :"<<(QString)(QLatin1String(buffer))\
+               <<"time is:"<<time<<endl;
+
+        videoSlider->setValue(time);
+        free (buffer);
+    #endif
+
     }
 }
 
@@ -145,29 +175,31 @@ void Widget::slotVideoStarted()
 
 #ifdef PC
     player->controlCmd("get_time_length \n");
-#endif
-
-#ifdef ARM
-    status = write(My_cmdPipeFd,"t",1);
-    if(status != -1)
-        qDebug()<<"Write t for play/pause,status is:"<<status<<endl;
-    else
-        qDebug()<<"write t error"<<endl;
-
-    float time;
-    status = read(My_cmdPipeFd,&time,8);
-    if(status != -1)
-        qDebug()<<"Read videoTotal time OK,status is:"<<status<<"the time is :"<<time<<endl;
-    else
-        qDebug()<<"Read time error"<<endl;
-
-#endif
-
 
     videoSlider->setValue(0);
     videoSlider->setSingleStep(200);
     videoSlider->setPageStep(500);
+#endif
 
+#ifdef ARM
+    status = write(My_cmdPipeFd,"t \n",4);
+
+    char *buffer = (char *) malloc(sizeof(float));
+    resultFd = open("/tmp/cmd_result",O_RDONLY);
+    read(resultFd,(void *)buffer,sizeof(buffer));
+    float totalTime = ((QString)(QLatin1String(buffer))).toFloat();
+
+    qDebug()<<"total time is :"<<(QString)(QLatin1String(buffer))\
+           <<"totalTime is:"<<totalTime<<endl;
+
+    videoSlider->setRange(0,totalTime);
+    videoSlider->setValue(0);
+    videoSlider->setSingleStep(5);
+    videoSlider->setPageStep(15);
+    free (buffer);
+#endif
+
+    videoSlider->setEnabled(true);
     stopButton->setEnabled(true);
     stepButton->setEnabled(true);
     backwardButton->setEnabled(true);
@@ -201,21 +233,23 @@ void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void Widget::slotVideoDataReceive()
 {
-    qDebug()<<"slotVideoDataReceive"<<endl;
+    qDebug()<<"slotVideoDataReceive";
 
     while( player->mplayerProcess->canReadLine() )
     {
         QString message = player->mplayerProcess->readLine();
+        qDebug()<<"message is:"<<message<<endl;
+
         QStringList messageList = message.split("=");
         if(messageList[0] == "ANS_TIME_POSITION")
         {
-            videoCurrTime = messageList[1].toFloat()*100;
+            int videoCurrTime = messageList[1].toFloat()*100;
             videoSlider->setValue(videoCurrTime);
             videoTime->start(1000);
         }
         else if(messageList[0] == "ANS_LENGTH")
         {
-            videoTotalTime = messageList[1].toFloat()*100;
+            int videoTotalTime = messageList[1].toFloat()*100;
             videoSlider->setRange(0, videoTotalTime);
             videoSlider->setEnabled(true);
             videoTime->start(1000);
@@ -233,18 +267,8 @@ void Widget::slotVolumeUp()
 #endif
 
 #ifdef ARM
-    status = write(My_cmdPipeFd,"+",1);
-    if(status != -1)
-        qDebug()<<"Write + for volume Up,status is:"<<status<<endl;
-    else
-        qDebug()<<"write + error"<<endl;
+    status = write(My_cmdPipeFd,"+ \n",4);
 #endif
-
-    if(playButton->toolTip() == "play")
-    {
-        playButton->setIcon(QIcon(":/icon/images/pause.png"));
-        playButton->setToolTip("pause");
-    }
 }
 
 void Widget::slotVolumeDown()
@@ -254,26 +278,16 @@ void Widget::slotVolumeDown()
 #endif
 
 #ifdef ARM
-    status = write(My_cmdPipeFd,"-",1);
-    if(status != -1)
-        qDebug()<<"Write - for volume Down,status is:"<<status<<endl;
-    else
-        qDebug()<<"write - error"<<endl;
+    status = write(My_cmdPipeFd,"- \n",4);
 #endif
 
-
-     if(playButton->toolTip() == "play")
-     {
-         playButton->setIcon(QIcon(":/icon/images/pause.png"));
-         playButton->setToolTip("pause");
-     }
 }
 
 void Widget::slotSliderChanged(int value)
 {
     qDebug()<<"void Widget::slotSliderChanged value is :"<<value<<endl;
 }
-
+/*
 void Widget::mouseDoubleClickEvent(QMouseEvent *event)
 {
     qDebug()<<"in Widget:: mouseDoubleClickEvent!!!!"<<endl;
@@ -312,6 +326,7 @@ void Widget::mouseDoubleClickEvent(QMouseEvent *event)
         }
     }
 }
+*/
 
 void Widget::slotOpenFile()
 {
@@ -342,7 +357,7 @@ void Widget::slotPlay()
 #endif
 
 #ifdef ARM
-        status = write(My_cmdPipeFd,"p",1);
+        status = write(My_cmdPipeFd,"p \n",4);
         if(status != -1)
             qDebug()<<"Write p for play/pause,status is:"<<status<<endl;
         else
@@ -353,7 +368,13 @@ void Widget::slotPlay()
 
 void Widget::slotStop()
 {
-    player->controlCmd("quit \n");
+#ifdef PC
+    player->controlCmd("quit\n");
+#endif
+
+#ifdef ARM
+    player->mplayerProcess->kill();
+#endif
 
     currentFileName.clear();
     playButton->setIcon(QIcon(":/icon/images/play.png"));
@@ -372,34 +393,32 @@ void Widget::slotStop()
 void Widget::slotStep()
 {
     qDebug()<<"now videoSpeed is:"<<videoSpeed<<endl;
-
-#ifdef ARM
-    status = write(My_cmdPipeFd,"-",1);
-    if(status != -1)
-        qDebug()<<"Write - for volume Down,status is:"<<status<<endl;
-    else
-        qDebug()<<"write - error"<<endl;
+    if(videoSpeed < 4)
+        videoSpeed+=1;
+#ifdef PC
+    player->controlCmd( QString("speed_set "+QString::number(videoSpeed)+"\n") );
 #endif
 
-    if(videoSpeed < 5)
-        videoSpeed+=1;
-    player->controlCmd( QString("speed_set "+QString::number(videoSpeed)+"\n") );
+#ifdef ARM
+    char *tmp = (((QString)("s "+QString::number(videoSpeed)+"\n")).toLatin1()).data();
+    qDebug()<<"slotStep write:"<<tmp<<endl;
+    status = write(My_cmdPipeFd,tmp,sizeof(tmp));
+#endif
 }
 
 void Widget::slotBackward()
 {
     qDebug()<<"now videoSpeed is:"<<videoSpeed<<endl;
-    if(videoSpeed > 0)
+    if(videoSpeed > 1)
         videoSpeed-=1;
-
+#ifdef PC
     player->controlCmd( QString("speed_set "+QString::number(videoSpeed)+"\n") );
+#endif
 
 #ifdef ARM
-    status = write(My_cmdPipeFd,"-",1);
-    if(status != -1)
-        qDebug()<<"Write - for volume Down,status is:"<<status<<endl;
-    else
-        qDebug()<<"write - error"<<endl;
+    char *tmp = (((QString)("s "+QString::number(videoSpeed) + "\n")).toLatin1()).data();
+    qDebug()<<"slotBackward write:"<<tmp<<endl;
+    status = write(My_cmdPipeFd,tmp,sizeof(tmp));
 #endif
 }
 
@@ -419,7 +438,7 @@ void Widget::slotMute()
 #endif
 
 #ifdef ARM
-    write(My_cmdPipeFd,"m",1);
+    write(My_cmdPipeFd,"m \n",4);
 #endif
 
 }
