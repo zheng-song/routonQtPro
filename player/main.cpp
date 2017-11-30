@@ -3,6 +3,8 @@
 
 int main(int argc, char *argv[])
 {
+    int status;
+
     QApplication a(argc, argv);
 
     Widget w;
@@ -17,7 +19,7 @@ int main(int argc, char *argv[])
     w.showMaximized();
     qDebug()<<"in ARM"<<endl;
 #endif
-
-    return a.exec();
-
+    status = a.exec();
+    qDebug()<<"a.exec() exist status is:"<<status;
+    return status;
 }
