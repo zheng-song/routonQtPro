@@ -38,6 +38,7 @@ protected slots:
     void slotGetTimeInfo();
     void slotCloseAPP();
     void slotSliderReleased();
+    void slotStepChange(int);
 
 //    void slotSliderMoved(int position);
 
@@ -65,6 +66,7 @@ private:
     int         isDoubleClicked;
     int         status;
     int         resultFd;
+    int         My_cmdPipeFd;
 };
 
 #endif // WIDGET_H

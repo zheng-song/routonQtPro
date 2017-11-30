@@ -71,7 +71,8 @@ Widget::Widget(QWidget *parent)
     videoSlider->setEnabled(false);
     connect(videoSlider, SIGNAL(valueChanged(int)),this,SLOT(slotSliderChanged(int)));
     connect(videoSlider,SIGNAL(sliderReleased()),this,SLOT(slotSliderReleased()));
-
+    connect(videoSlider,SIGNAL(actionTriggered(QSlider::SliderSingleStepAdd)),this,SLOT( slotStepChange(int)));
+    connect(videoSlider,SIGNAL(actionTriggered(QSlider::SliderSingleStepSub)),this,SLOT( slotStepChange(int)));
 
     buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(openFileButton);
@@ -84,6 +85,7 @@ Widget::Widget(QWidget *parent)
     buttonLayout->addWidget(volUp);
     buttonLayout->addWidget(muteButton);
     buttonLayout->addWidget(closeButton);
+    buttonLayout->setSpacing(10);
 
     player = new Player();
     player->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -111,12 +113,16 @@ Widget::Widget(QWidget *parent)
 /***********************定时1秒获取MPlayer的时间信息1次*******************************/
     videoTime = new QTimer(this);
     connect(videoTime,SIGNAL(timeout()),this,SLOT(slotGetTimeInfo()));
-
-    setbuf(stdout,NULL);
 }
 
 Widget::~Widget()
 { }
+
+
+void Widget::slotStepChange(int value)
+{
+    qDebug()<<QString("slotStepChange %1").arg(value)<<endl;
+}
 
 void Widget::slotGetTimeInfo()
 {
@@ -131,17 +137,22 @@ void Widget::slotGetTimeInfo()
 
     #ifdef ARM
         status = write(My_cmdPipeFd,"c \n",4);
-        qDebug()<<QString("write My_cmdPipeFd length is %1:").arg(status)<<endl;
+        if(status == -1)
+            qDebug()<<"write My_cmdPipeFd c for get current time ERROR !!!!"<<endl;
+//        else
+//            qDebug()<<QString("write My_cmdPipeFd length is %1:").arg(status)<<endl;
 
-//        resultFd = open("/tmp/cmd_result",O_RDONLY);
-//        char buffer[20];
-//        status = read(resultFd,(void *)&buffer,sizeof(buffer));
-//        qDebug()<<QString("read resultFd length is %1:").arg(status)<<endl;
+        char buffer[128];
+        status = read(resultFd,(void *)&buffer,sizeof(buffer));
+        if(status == -1)
+            qDebug()<<"read resultFd for get current time ERROR !!!!"<<endl;
+//        else
+//            qDebug()<<QString("read resultFd length is %1:").arg(status)<<endl;
 
-//        int time =(int)( ((QString)(QLatin1String((char *)&buffer))).toFloat() );
+        int time =(int)( ((QString)(QLatin1String((char *)&buffer))).toFloat() );
 //        qDebug()<<"current time is :"<<(QString)(QLatin1String((char *)&buffer))<<"time is:"<<time<<endl;
 
-//        videoSlider->setValue(time);
+        videoSlider->setValue(time);
     #endif
     }
 }
@@ -149,11 +160,6 @@ void Widget::slotGetTimeInfo()
 void Widget::slotVideoStarted()
 {
     qDebug()<<"video started!!!"<<endl;
-    resultFd = open("/tmp/cmd_result",O_RDONLY);
-    if(resultFd == -1)
-        qDebug()<<QString("open /tmp/cmd_result failed")<<endl;
-    else
-        qDebug()<<QString("open /tmp/cmd_result successful")<<endl;
 
 #ifdef PC
     player->controlCmd("get_time_length \n");
@@ -164,11 +170,27 @@ void Widget::slotVideoStarted()
 #endif
 
 #ifdef ARM
+    if(access("/tmp/cmd_pipe", F_OK) == -1)
+        mkfifo("/tmp/cmd_pipe",S_IFIFO | 0777);
+    My_cmdPipeFd = open("/tmp/cmd_pipe",O_WRONLY);
+    if(My_cmdPipeFd == -1)
+        qDebug()<<QString("open /tmp/cmd_pipe failed")<<endl;
+    else
+        qDebug()<<QString("open /tmp/cmd_pipe successful")<<endl;
+
+    if(access("/tmp/cmd_result", F_OK) == -1)
+        mkfifo("/tmp/cmd_result",S_IFIFO | 0777);
+    resultFd = open("/tmp/cmd_result",O_RDONLY);
+    if(resultFd == -1)
+        qDebug()<<QString("open /tmp/cmd_result failed")<<endl;
+    else
+        qDebug()<<QString("open /tmp/cmd_result successful")<<endl;
+
     status = write(My_cmdPipeFd,"t \n",4);
 
-    char buffer[20];
+    char buffer[128];
     status = read(resultFd,(void *)&buffer,sizeof(buffer));
-    qDebug()<<QString("read total time length is %1:").arg(status)<<endl;
+//    qDebug()<<QString("read total time length is %1:").arg(status)<<endl;
 
     int totalTime =(int)( ((QString)(QLatin1String((char *)&buffer))).toFloat() + 1);
 
@@ -260,16 +282,6 @@ void Widget::slotVideoDataReceive()
             int videoTotalTime = messageList[1].toFloat()*100;
             videoSlider->setRange(0, videoTotalTime);
             videoSlider->setEnabled(true);
-        }
-#endif
-
-#ifdef ARM
-        QStringList messageList = message.split(" ");
-        if(messageList[0] == "chenrui," && messageList[1] == "current" && messageList[2] == "time" && messageList[3] == "is")
-        {
-            int videoCurrTime = (int)(messageList[4].toFloat());
-            qDebug()<<"videoCurrentTime is:"<<videoCurrTime<<endl;
-//            videoSlider->setValue(videoCurrTime);
         }
 #endif
 
