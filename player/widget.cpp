@@ -10,8 +10,7 @@ Widget::Widget(QWidget *parent)
       videoSpeed(1),isDoubleClicked(0)
 {
     setAutoFillBackground(true);
-    setStyleSheet("QWidget{background-color:rgb(255,255,255);}");
-//    setWindowModality(Qt::WindowModal);
+    setStyleSheet("QWidget{background-color:rgb(255,255,255);}");//rgb(255,255,255) white rgb(0,0,0) black
     setAttribute(Qt::WA_TranslucentBackground,true);
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 
@@ -113,7 +112,9 @@ Widget::Widget(QWidget *parent)
 
 /***********************定时1秒获取MPlayer的时间信息1次*******************************/
     videoTime = new QTimer(this);
+    playVideoDelay = new QTimer(this);
     connect(videoTime,SIGNAL(timeout()),this,SLOT(slotGetTimeInfo()));
+    connect(playVideoDelay,SIGNAL(timeout()),this,SLOT(slotPlayVideo()));
 }
 
 Widget::~Widget()
@@ -131,7 +132,6 @@ void Widget::slotStepChange(int value)
 #endif
 
 #ifdef ARM
-
     QString tmp;
     if( value==3 )
         tmp = "a "+QString::number(videoSlider->value()+10)+".00 \n";
@@ -140,6 +140,7 @@ void Widget::slotStepChange(int value)
 
     status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
 #endif
+
 }
 
 void Widget::slotGetTimeInfo()
@@ -254,6 +255,52 @@ void Widget::slotSliderReleased()
 
 }
 
+void Widget::slotOpenFile()
+{
+    qDebug()<<"in open File";
+    currentFileName.clear();
+    currentFileName = QFileDialog::getOpenFileName(this, tr("打开媒体文件"), tr("/home/zs/qtBuild/video/"),
+                tr("Video files(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav);; All files ( *.* );;"));
+
+   if( !currentFileName.isEmpty() )
+    {
+        qDebug()<<QString("file name is:%1").arg(currentFileName);
+        playVideoDelay->start(100);
+    }
+}
+
+void Widget::slotPlayVideo()
+{
+    player->play(currentFileName);
+    playVideoDelay->stop();
+}
+
+void Widget::slotStop()
+{
+#ifdef PC
+    player->controlCmd("quit\n");
+#endif
+
+#ifdef ARM
+    player->mplayerProcess->kill();
+#endif
+
+    currentFileName.clear();
+    playButton->setIcon(QIcon(":/icon/images/play.png"));
+    playButton->setToolTip("play");
+
+    videoSlider->setEnabled(false);
+    videoSlider->setValue(0);
+    stopButton->setEnabled(false);
+    stepButton->setEnabled(false);
+    backwardButton->setEnabled(false);
+    muteButton->setEnabled(false);
+    volUp->setEnabled(false);
+    volDown->setEnabled(false);
+}
+
+
+
 void Widget::slotCloseAPP()
 {
     player->controlCmd("quit\n");
@@ -264,11 +311,11 @@ void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     qDebug() <<"视频播放完毕 the exitCode is :"<<exitCode\
            <<"the exit status is "<<exitStatus<<endl;
+
     videoSlider->setEnabled(false);
     videoSlider->setValue(0);
     playButton->setIcon(QIcon(":/icon/images/play.png"));
     playButton->setToolTip("play");
-    currentFileName.clear();
 
     playButton->setEnabled(false);
     stopButton->setEnabled(false);
@@ -335,7 +382,7 @@ void Widget::slotVolumeDown()
 
 void Widget::slotSliderChanged(int value)
 {
-    qDebug()<<"current slider value is :"<<value<<endl;
+//    qDebug()<<"current slider value is :"<<value<<endl;
 }
 /*
 void Widget::mouseDoubleClickEvent(QMouseEvent *event)
@@ -378,16 +425,6 @@ void Widget::mouseDoubleClickEvent(QMouseEvent *event)
 }
 */
 
-void Widget::slotOpenFile()
-{
-    currentFileName = QFileDialog::getOpenFileName(this, tr("打开媒体文件"), tr("/home/zs/qtBuild/video/"),
-                    tr("Video files(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav);; All files ( *.* );;"));
-    if( !currentFileName.isEmpty() )
-    {
-        player->play(currentFileName);
-    }
-}
-
 void Widget::slotPlay()
 {
     if( !currentFileName.isEmpty() )
@@ -414,30 +451,6 @@ void Widget::slotPlay()
             qDebug()<<"write p error"<<endl;
 #endif
     }
-}
-
-void Widget::slotStop()
-{
-#ifdef PC
-    player->controlCmd("quit\n");
-#endif
-
-#ifdef ARM
-    player->mplayerProcess->kill();
-#endif
-
-    currentFileName.clear();
-    playButton->setIcon(QIcon(":/icon/images/play.png"));
-    playButton->setToolTip("play");
-
-    videoSlider->setEnabled(false);
-    videoSlider->setValue(0);
-    stopButton->setEnabled(false);
-    stepButton->setEnabled(false);
-    backwardButton->setEnabled(false);
-    muteButton->setEnabled(false);
-    volUp->setEnabled(false);
-    volDown->setEnabled(false);
 }
 
 void Widget::slotStep()

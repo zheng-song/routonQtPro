@@ -39,6 +39,7 @@ protected slots:
     void slotCloseAPP();
     void slotSliderReleased();
     void slotStepChange(int);
+    void slotPlayVideo();
 
 //    void slotSliderMoved(int position);
 
@@ -60,9 +61,10 @@ private:
     QHBoxLayout * buttonLayout;
 
     QTimer      * videoTime;
+    QTimer      * playVideoDelay;
     QString currentFileName;
 
-    int       videoSpeed;
+    int         videoSpeed;
     int         isDoubleClicked;
     int         status;
     int         resultFd;

@@ -10,6 +10,7 @@ Player::Player(QWidget * parent)
     isDoubleClick = 0;
 
     mplayerProcess = new QProcess(this);
+
 }
 
 Player::~Player()
@@ -18,15 +19,20 @@ Player::~Player()
 
 void Player::play(const QString &fileName)
 {
-    mplayerProcess->kill();              // kill the old process
-    mplayerProcess = new QProcess(this); // create a new process
+    if(mplayerProcess->state()==QProcess::Running)
+    {
+        mplayerProcess->kill();
+        mplayerProcess->waitForFinished(-1);
+        qDebug()<<"old process is finished"<<endl;
+        delete mplayerProcess;
+        mplayerProcess = new QProcess(this);
+    }
     mplayerProcess->setProcessChannelMode(QProcess::MergedChannels);
 
     connect(mplayerProcess,SIGNAL( readyReadStandardOutput() ),this,SIGNAL(readyReadStandardOutput() ));
     connect(mplayerProcess,SIGNAL( started() ),this,SIGNAL( started() ));
     connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),\
             this,SIGNAL(finished(int,QProcess::ExitStatus)));
-
     QStringList args;
     QString programs;
 #ifdef  PC
