@@ -1,13 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include <QWidget>
-#include <QtWidgets>
-#include <QCheckBox>
-#include <QLabel>
-#include <QScrollBar>
-#include <QTreeView>
+
+class FindDialog;
+class QPushButton;
 
 class MainWindow:public QWidget
 {
@@ -15,24 +12,14 @@ class MainWindow:public QWidget
 
 public:
     MainWindow(QWidget *parent=0);
+    ~MainWindow();
+
+private slots:
+    void slotOkButtonClicked();
 
 private:
-    QLabel *label1;
-    QCheckBox *checkBox1;
-
-    QLabel *label2;
-    QCheckBox *checkBox2;
-
-    QLabel *label3;
-    QCheckBox *checkBox3;
-
-    QLabel *label4;
-    QCheckBox *checkBox4;
-
-    QLabel *label5;
-    QCheckBox *checkBox5;
-
-    QTreeView *fileList;
+    FindDialog *findDialog;
+    QPushButton *okButton;
 };
 
 #endif // MAINWINDOW_H
