@@ -1,14 +1,13 @@
 #include "player.h"
+#include <QtWidgets>
 
 Player::Player(QWidget * parent)
-    : QWidget(parent)
+    : QWidget(parent),isDoubleClick(0)
 {
 
     renderTarget = new QWidget(this);
     renderTarget->setAttribute(Qt::WA_OpaquePaintEvent);
     timer = new QTimer;
-    isDoubleClick = 0;
-
     mplayerProcess = new QProcess(this);
 
 }
@@ -28,7 +27,6 @@ void Player::play(const QString &fileName)
         mplayerProcess = new QProcess(this);
     }
     mplayerProcess->setProcessChannelMode(QProcess::MergedChannels);
-
     connect(mplayerProcess,SIGNAL( readyReadStandardOutput() ),this,SIGNAL(readyReadStandardOutput() ));
     connect(mplayerProcess,SIGNAL( started() ),this,SIGNAL( started() ));
     connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),\
@@ -95,6 +93,3 @@ void Player::resizeEvent(QResizeEvent * event)
 {
     renderTarget->resize(event->size());
 }
-
-
-

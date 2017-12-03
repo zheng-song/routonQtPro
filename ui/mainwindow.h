@@ -14,11 +14,13 @@ public:
     MainWindow(QWidget *parent=0);
     ~MainWindow();
 
+    void closeEvent(QCloseEvent *e);
+
 private slots:
     void slotOkButtonClicked();
 
 private:
-    FindDialog *findDialog;
+//    FindDialog *findDialog;
     QPushButton *okButton;
 };
 

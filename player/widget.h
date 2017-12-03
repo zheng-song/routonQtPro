@@ -1,11 +1,12 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QWidget>
-#include <QMainWindow>
-#include <QtWidgets>
 #include "player.h"
+#include <QMainWindow>
 
+class QPushButton;
+class QSlider;
+class QHBoxLayout;
 
 class Widget : public QMainWindow
 {
@@ -14,10 +15,6 @@ class Widget : public QMainWindow
 public:
     Widget(QWidget *parent = 0);
     ~Widget();
-
-protected:
-//    bool eventFilter(QObject *watched, QEvent *event);
-//    void mouseDoubleClickEvent(QMouseEvent *);
 
 protected slots:
     void slotPlay(); 		// 播放
@@ -40,8 +37,6 @@ protected slots:
     void slotSliderReleased();
     void slotStepChange(int);
     void slotPlayVideo();
-
-//    void slotSliderMoved(int position);
 
 private:
     Player * player;

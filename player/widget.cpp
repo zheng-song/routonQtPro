@@ -1,9 +1,9 @@
 #include "widget.h"
+#include <QtWidgets>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 Widget::Widget(QWidget *parent)
     : QMainWindow(parent),currentFileName(""),
@@ -192,20 +192,35 @@ void Widget::slotVideoStarted()
 
     if(access("/tmp/cmd_result", F_OK) == -1)
         mkfifo("/tmp/cmd_result",S_IFIFO | 0777);
+    int i =0;
     do{
-    resultFd = open("/tmp/cmd_result",O_RDONLY);
+        resultFd = open("/tmp/cmd_result",O_RDONLY);
+        i++;
+    }while(resultFd<0 &&  i<50);
     if(resultFd == -1)
-        qDebug()<<QString("open /tmp/cmd_result failed")<<endl;
-    }while(resultFd<0);
+    {
+//        qDebug()<<QString("open /tmp/cmd_result failed")<<endl;
+        QMessageBox::warning(this,"Warning",\
+                                     "open pipe /tmp/cmd_result failed,quit now!!!",QMessageBox::Ok);
+        this->close();
+    }
+
     qDebug()<<QString("open /tmp/cmd_result successful")<<endl;
 
     if(access("/tmp/cmd_pipe", F_OK) == -1)
         mkfifo("/tmp/cmd_pipe",S_IFIFO | 0777);
+    i = 0;
     do{
         My_cmdPipeFd = open("/tmp/cmd_pipe",O_WRONLY);
-        if(My_cmdPipeFd == -1)
-            qDebug()<<QString("open /tmp/cmd_pipe failed")<<endl;
-    }while(My_cmdPipeFd<0);
+        i++;
+    }while(My_cmdPipeFd<0 && i<50);
+    if(My_cmdPipeFd == -1)
+    {
+        QMessageBox::warning(this,"Warning",\
+                                     "open pipe /tmp/My_cmdPipeFd failed,quit now!!!",QMessageBox::Ok);
+        this->close();
+    }
+
     qDebug()<<QString("open /tmp/cmd_pipe successful")<<endl;
 
 
@@ -309,9 +324,10 @@ void Widget::slotCloseAPP()
 
 void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    qDebug() <<"视频播放完毕 the exitCode is :"<<exitCode\
+    qDebug() <<"video play finished the exitCode is :"<<exitCode\
            <<"the exit status is "<<exitStatus<<endl;
 
+    currentFileName.clear();
     videoSlider->setEnabled(false);
     videoSlider->setValue(0);
     playButton->setIcon(QIcon(":/icon/images/play.png"));
@@ -328,13 +344,10 @@ void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void Widget::slotVideoDataReceive()
 {
-//    qDebug()<<"slotVideoDataReceive";
-
     while( player->mplayerProcess->canReadLine() )
     {
         QString message = player->mplayerProcess->readLine();
 //        qDebug()<<"message is:"<<message<<endl;
-
 #ifdef PC
         QStringList messageList = message.split("=");
         if(messageList[0] == "ANS_TIME_POSITION")
@@ -349,7 +362,6 @@ void Widget::slotVideoDataReceive()
             videoSlider->setEnabled(true);
         }
 #endif
-
 
     }
 }

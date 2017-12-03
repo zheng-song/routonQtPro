@@ -52,7 +52,12 @@ FindDialog::FindDialog(QWidget *parent)
     this->setWindowTitle("Find");
     this->setFixedHeight(sizeHint().height());
     this->setMinimumWidth(sizeHint().width());
+
+    closeButton->installEventFilter(this);
 }
+
+
+FindDialog::~FindDialog(){}
 
 
 void FindDialog::slotEnableFindButton(const QString & str)
@@ -88,4 +93,15 @@ void FindDialog::slotFindContent(QString,Qt::CaseSensitivity)
 void FindDialog::slotCloseButtonClicked()
 {
     QWidget::close();
+}
+
+bool FindDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    if(watched == closeButton && event->type() ==  QEvent::MouseButtonPress)
+    {
+        return true;
+    }
+
+
+    return QObject::eventFilter(watched,event);
 }

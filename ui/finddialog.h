@@ -14,6 +14,9 @@ class FindDialog:public QWidget
 
 public:
     FindDialog(QWidget *parent=0);
+    ~FindDialog();
+
+    bool eventFilter(QObject *watched, QEvent *event);
 
 signals:
     void findPrevious(QString,Qt::CaseSensitivity);

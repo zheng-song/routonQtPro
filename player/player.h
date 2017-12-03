@@ -1,11 +1,11 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <QtWidgets>
+#include <QWidget>
 #include <QProcess>
 
-//#define PC
-#define ARM
+#define PC
+//#define ARM
 
 class Player : public QWidget
 {
@@ -17,11 +17,9 @@ public:
 
     void play(const QString &fileName);
     void controlCmd(const QString &cmd);
-
     QProcess    * mplayerProcess;
 
 signals:
-
     void started();
     void error(QProcess::ProcessError);
     void finished(int, QProcess::ExitStatus);
@@ -31,14 +29,9 @@ protected:
     void resizeEvent(QResizeEvent * event);
     void mouseDoubleClickEvent(QMouseEvent *);
 
-private slots:
-//    void slotVideoDataReceive();
-//    void slotVideoStarted();
-//    void slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
 private:
     QWidget     * renderTarget;
-    QTimer      * timer;
+    QTimer      *timer;
     int         isDoubleClick;
 };
 
