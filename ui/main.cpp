@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "rs232.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
@@ -7,7 +8,8 @@ int main(int argc, char *argv[])
     // 改变缺省消息处理程序的输出
 //    qSetMessagePattern("Message:%{message} File:%{file} Line:%{line} Function:%{function} DateTime:%{time [yyyy-MM-dd hh:mm:ss ddd]}");
     qSetMessagePattern("%{message} :%{file} Line:%{line}");
-    MainWindow w;
+//    MainWindow w;
+    m_RS232 w;
     w.show();
     return a.exec();
 }
