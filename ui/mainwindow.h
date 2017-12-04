@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include <QMutex>
+#include <QMutexLocker>
 
 class FindDialog;
 class QPushButton;
@@ -15,6 +17,7 @@ public:
     ~MainWindow();
 
     void closeEvent(QCloseEvent *e);
+    void increment(){QMutexLocker locker(&mutex);}
 
 private slots:
     void slotOkButtonClicked();
@@ -22,6 +25,9 @@ private slots:
 private:
 //    FindDialog *findDialog;
     QPushButton *okButton;
+    int n;
+    mutable QMutex mutex;
+
 };
 
 #endif // MAINWINDOW_H

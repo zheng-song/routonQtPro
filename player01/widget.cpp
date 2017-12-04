@@ -7,7 +7,9 @@ extern int close(int);
 
 Widget::Widget(QWidget *parent)
     : QMainWindow(parent),currentFileName(""),
-      videoSpeed(1),isDoubleClicked(0)
+      videoSpeed(1),
+      fifoWriteFile("/tmp/cmd_pipe"),
+      fifoReadFile("/tmp/cmd_result")
 {
     setAutoFillBackground(true);
     setStyleSheet("QWidget{background-color:rgb(255,255,255);}");
@@ -112,62 +114,22 @@ Widget::Widget(QWidget *parent)
     videoTime = new QTimer(this);
     connect(videoTime,SIGNAL(timeout()),this,SLOT(slotGetTimeInfo()));
     videoTime->start(1000);
+
+    if(!fifoWriteFile.exists())
+        mkfifo("/tmp/cmd_pipe",S_IFIFO | 0777);
+//    if(!fifoWriteFile.open(QIODevice::ReadWrite | QIODevice::Text))
+//    {
+//        qDebug()<<"open /tmp/cmd_pipe fifo failed!quit now."<<endl;
+//    }
 }
 
 Widget::~Widget()
-{ }
-
-void Widget::slotSliderReleased()
 {
-    qDebug()<<"videoSlider->value():"<<videoSlider->value()<<endl;
-#ifdef PC
-    float time =(float)(videoSlider->value()) / 100.0;
-    qDebug()<<"time is: "<<time<<endl;
-    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
-#endif
 
-#ifdef ARM
-    QString tmp;
-    tmp += "a ";
-    tmp += QString::number(videoSlider->value());
-    write(My_cmdPipeFd,(tmp.toLatin1()).data(),sizeof(tmp));
-#endif
+    fifoWriteFile.close();
+//    fifoReadFile.close();
 
 }
-
-void Widget::slotCloseAPP()
-{
-    player->controlCmd("quit\n");
-    this->close();
-}
-
-void Widget::slotGetTimeInfo()
-{
-    if(playButton->toolTip() == "pause")
-    {
-    #ifdef PC
-        if(playButton->toolTip() == "pause")
-        {
-            player->controlCmd("get_time_pos \n");
-        }
-    #endif
-
-    #ifdef ARM
-        write(My_cmdPipeFd,"c",strlen("c"));
-
-        char *buffer =  (char*)malloc(sizeof(float));
-        read(resultFd,(void *)buffer,sizeof(buffer));
-        int time = ((QString)(QLatin1String(buffer))).toInt();
-        qDebug()<<"current time is :"<<(QString)(QLatin1String(buffer))\
-               <<"time is:"<<time<<endl;
-
-        videoSlider->setValue(time);
-        free (buffer);
-    #endif
-
-    }
-}
-
 
 void Widget::slotVideoStarted()
 {
@@ -182,21 +144,40 @@ void Widget::slotVideoStarted()
 #endif
 
 #ifdef ARM
-    status = write(My_cmdPipeFd,"t \n",4);
 
-    char *buffer = (char *) malloc(sizeof(float));
-    resultFd = open("/tmp/cmd_result",O_RDONLY);
-    read(resultFd,(void *)buffer,sizeof(buffer));
-    float totalTime = ((QString)(QLatin1String(buffer))).toFloat();
+    if(!fifoWriteFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        qDebug()<<"open /tmp/cmd_pipe fifo failed!"<<endl;
+    else
+        qDebug()<<"open /tmp/cmd_pipe fifo successful!"<<endl;
 
-    qDebug()<<"total time is :"<<(QString)(QLatin1String(buffer))\
-           <<"totalTime is:"<<totalTime<<endl;
+    QString tmp = "t \n";
+    length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+    if(length == -1)
+        qDebug()<<QString("write get video total time error")<<endl;
 
-    videoSlider->setRange(0,totalTime);
+
+//    if(!fifoReadFile.open(QIODevice::ReadOnly | QIODevice::Text))
+//        qDebug()<<"open /tmp/cmd_result failed";
+//    else
+//        qDebug()<<"open /tmp/cmd_result successful";
+//    char buffer[20];
+//    memset(buffer,0,sizeof(buffer));
+//    length = fifoReadFile.readLine((char *)&buffer,sizeof(buffer));
+//    if (length == -1)
+//    {
+//        qDebug()<<"read /tmp/cmd_result error"<<endl;
+//    }
+//    else
+//    {
+//        qDebug()<<QString("read number is:%1").arg(length);
+//    }
+//    float totalTime = ((QString)(QLatin1String((char *)&buffer))).toFloat();
+//    qDebug()<<"total time is :"<<(QString)(QLatin1String((char *)&buffer))<<"totalTime is:"<<totalTime<<endl;
+
+//    videoSlider->setRange(0,totalTime);
     videoSlider->setValue(0);
     videoSlider->setSingleStep(5);
     videoSlider->setPageStep(15);
-    free (buffer);
 #endif
 
     videoSlider->setEnabled(true);
@@ -210,7 +191,81 @@ void Widget::slotVideoStarted()
 
     playButton->setIcon(QIcon(":/icon/images/pause.png"));
     playButton->setToolTip("pause");
+
+    videoTime->start(1000);
 }
+
+void Widget::slotGetTimeInfo()
+{
+    if(playButton->toolTip() == "pause")
+    {
+    #ifdef PC
+        if(playButton->toolTip() == "pause")
+        {
+            player->controlCmd("get_time_pos \n");
+        }
+    #endif
+
+    #ifdef ARM
+
+        QString tmp = "c \n";
+        length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+        if(length == -1)
+            qDebug()<<QString("write get video current time error")<<endl;
+
+//        if(!fifoReadFile.open(QIODevice::ReadOnly))
+//        {
+//            qDebug()<<"open /tmp/cmd_result failed";
+//        }
+
+//        qDebug()<<"open /tmp/cmd_result failed";
+//        char buffer[20];
+//        length = fifoReadFile.read((char *)&buffer,sizeof(buffer));
+//        if (length == -1)
+//        {
+//            qDebug()<<"read /tmp/cmd_result error"<<endl;
+//        }
+
+//        int time = (int)(((QString)(QLatin1String((char *)&buffer))).toFloat());
+//        qDebug()<<"current time is :"<<(QString)(QLatin1String((char *)&buffer))<<"time is:"<<time<<endl;
+
+//        fifoWriteFile.close();
+//        fifoReadFile.close();
+
+//        videoSlider->setValue(time);
+    #endif
+
+    }
+}
+
+
+void Widget::slotSliderReleased()
+{
+    qDebug()<<"videoSlider->value():"<<videoSlider->value()<<endl;
+#ifdef PC
+    float time =(float)(videoSlider->value()) / 100.0;
+    qDebug()<<"time is: "<<time<<endl;
+    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+#endif
+
+#ifdef ARM
+    QString tmp = "a "+QString::number(videoSlider->value()) + ".00 \n";
+    length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+    if(length == -1)
+        qDebug()<<QString("write slotSliderReleased error")<<endl;
+//    else
+//        qDebug()<<QString("write slotSliderReleased OK")<<endl;
+#endif
+
+}
+
+void Widget::slotCloseAPP()
+{
+
+    player->controlCmd("quit\n");
+    this->close();
+}
+
 
 void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
@@ -240,20 +295,30 @@ void Widget::slotVideoDataReceive()
         QString message = player->mplayerProcess->readLine();
         qDebug()<<"message is:"<<message<<endl;
 
+#ifdef PC
         QStringList messageList = message.split("=");
         if(messageList[0] == "ANS_TIME_POSITION")
         {
             int videoCurrTime = messageList[1].toFloat()*100;
             videoSlider->setValue(videoCurrTime);
-            videoTime->start(1000);
         }
         else if(messageList[0] == "ANS_LENGTH")
         {
             int videoTotalTime = messageList[1].toFloat()*100;
             videoSlider->setRange(0, videoTotalTime);
             videoSlider->setEnabled(true);
-            videoTime->start(1000);
         }
+#endif
+        QStringList messageList = message.split(" ");
+        if(messageList[0] == "chenrui," && messageList[1] == "current" && messageList[2] == "time" && messageList[3] == "is")
+        {
+            int videoCurrTime = (int)(messageList[4].toFloat());
+            qDebug()<<"videoCurrentTime is:"<<videoCurrTime<<endl;
+//            videoSlider->setValue(videoCurrTime);
+        }
+#ifdef ARM
+
+#endif
     }
 }
 
@@ -267,7 +332,14 @@ void Widget::slotVolumeUp()
 #endif
 
 #ifdef ARM
-    status = write(My_cmdPipeFd,"+ \n",4);
+    QString tmp = "+ \n";
+    length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+    if(length == -1)
+        qDebug()<<QString("write slotVolumeUp error")<<endl;
+    else
+        qDebug()<<QString("write slotVolumeUp OK")<<endl;
+
+//    status = write(My_cmdPipeFd,"+ \n",4);
 #endif
 }
 
@@ -278,7 +350,14 @@ void Widget::slotVolumeDown()
 #endif
 
 #ifdef ARM
-    status = write(My_cmdPipeFd,"- \n",4);
+     QString tmp = "- \n";
+     length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+     if(length == -1)
+         qDebug()<<QString("write slotVolumeDown error")<<endl;
+     else
+         qDebug()<<QString("write slotVolumeDown OK")<<endl;
+
+//    status = write(My_cmdPipeFd,"- \n",4);
 #endif
 
 }
@@ -357,11 +436,14 @@ void Widget::slotPlay()
 #endif
 
 #ifdef ARM
-        status = write(My_cmdPipeFd,"p \n",4);
-        if(status != -1)
-            qDebug()<<"Write p for play/pause,status is:"<<status<<endl;
+        QString tmp = "p \n";
+        length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+        if(length == -1)
+            qDebug()<<QString("write slotPlay error")<<endl;
         else
-            qDebug()<<"write p error"<<endl;
+            qDebug()<<QString("write slotPlay OK")<<endl;
+
+//        status = write(My_cmdPipeFd,"p \n",4);
 #endif
     }
 }
@@ -400,9 +482,13 @@ void Widget::slotStep()
 #endif
 
 #ifdef ARM
-    char *tmp = (((QString)("s "+QString::number(videoSpeed)+"\n")).toLatin1()).data();
+    QString tmp = "s "+QString::number(videoSpeed)+"\n";
     qDebug()<<"slotStep write:"<<tmp<<endl;
-    status = write(My_cmdPipeFd,tmp,sizeof(tmp));
+    length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+    if(length == -1)
+        qDebug()<<QString("write speed %1 error").arg(videoSpeed)<<endl;
+    else
+        qDebug()<<QString("write speed s %1").arg(videoSpeed)<<endl;
 #endif
 }
 
@@ -416,9 +502,15 @@ void Widget::slotBackward()
 #endif
 
 #ifdef ARM
-    char *tmp = (((QString)("s "+QString::number(videoSpeed) + "\n")).toLatin1()).data();
+    QString tmp = "s "+QString::number(videoSpeed)+"\n";
     qDebug()<<"slotBackward write:"<<tmp<<endl;
-    status = write(My_cmdPipeFd,tmp,sizeof(tmp));
+    length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+    if(length == -1)
+        qDebug()<<QString("write speed %1 error").arg(videoSpeed)<<endl;
+    else
+        qDebug()<<QString("write speed s %1").arg(videoSpeed)<<endl;
+//    char *tmp = (((QString)("s "+QString::number(videoSpeed) + "\n")).toLatin1()).data();
+//    status = write(My_cmdPipeFd,tmp,sizeof(tmp));
 #endif
 }
 
@@ -438,7 +530,13 @@ void Widget::slotMute()
 #endif
 
 #ifdef ARM
-    write(My_cmdPipeFd,"m \n",4);
+    QString tmp = "m \n";
+    length = fifoWriteFile.write(tmp.toLatin1() , tmp.length());
+    if(length == -1)
+        qDebug()<<QString("write mute error")<<endl;
+    else
+        qDebug()<<QString("write mute ok")<<endl;
+//    write(My_cmdPipeFd,"m \n",4);
 #endif
 
 }

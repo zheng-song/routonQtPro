@@ -10,6 +10,7 @@ Player::Player(QWidget * parent)
     isDoubleClick = 0;
 
     mplayerProcess = new QProcess(this);
+    mplayerProcess->setReadChannel(QProcess::StandardOutput);
 }
 
 Player::~Player()

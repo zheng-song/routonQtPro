@@ -58,13 +58,17 @@ private:
 
     QHBoxLayout * buttonLayout;
 
-    QTimer      * videoTime;
-    QString currentFileName;
 
-    int       videoSpeed;
-    int         isDoubleClicked;
+    QString     currentFileName;
+    QTimer      * videoTime;
+
+    int         videoSpeed;
+//    int         isDoubleClicked;
     int         status;
     int         resultFd;
+    qint64      length;
+    QFile       fifoWriteFile;
+    QFile       fifoReadFile;
 };
 
 #endif // WIDGET_H

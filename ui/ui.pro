@@ -30,10 +30,12 @@ DEFINES += QT_DEBUG_OUTPUT
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    finddialog.cpp
+    finddialog.cpp \
+    analogclock.cpp
 
 HEADERS += \
         mainwindow.h \
-    finddialog.h
+    finddialog.h \
+    analogclock.h
 
 FORMS +=

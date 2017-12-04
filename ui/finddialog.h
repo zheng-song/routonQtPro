@@ -1,3 +1,12 @@
+/**@brief   this is class to find the specified content in a file
+ * @file    finddialog.h
+ * @author  zs_hust
+ * @version 1.0
+ * @date    2017/12/04
+ * @note    used to find content
+ * @since   2017/12/04
+ */
+
 #ifndef FINDDIALOG_H
 #define FINDDIALOG_H
 

@@ -5,9 +5,8 @@
 #include <QProcess>
 #include <unistd.h>
 
-extern int My_cmdPipeFd;
-#define PC
-//#define ARM
+//#define PC
+#define ARM
 
 class Player : public QWidget
 {
