@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QMutex>
 #include <QMutexLocker>
+#include "analogclock.h"
 
 class FindDialog;
 class QPushButton;
@@ -25,6 +26,8 @@ private slots:
 private:
 //    FindDialog *findDialog;
     QPushButton *okButton;
+    m_AnalogClock *clock;
+
     int n;
     mutable QMutex mutex;
 

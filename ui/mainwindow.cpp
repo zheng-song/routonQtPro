@@ -5,10 +5,15 @@
 MainWindow::MainWindow(QWidget *parent)
     :QWidget(parent)
 {
-//    findDialog = new FindDialog;
     okButton = new QPushButton("OK",this);
-
     connect(okButton,SIGNAL(clicked(bool)),this,SLOT(slotOkButtonClicked()));
+    clock = new m_AnalogClock(this);
+//    clock->show();
+    QHBoxLayout *hlayout = new QHBoxLayout;
+    hlayout->addWidget(clock);
+    hlayout->addWidget(okButton);
+    this->setLayout(hlayout);
+    this->resize(sizeHint().width(),sizeHint().height());
 }
 
 MainWindow::~MainWindow()

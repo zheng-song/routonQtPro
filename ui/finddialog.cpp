@@ -69,8 +69,7 @@ void FindDialog::slotSearchButtonClicked()
 {
     QString textContent = lineEdit->text();
 //    if(textContent.isEmpty())
-//        QMessageBox::warning(this,"Warning",\
-                             "you have enter no text",QMessageBox::Ok);
+//        QMessageBox::warning(this,"Warning","you have enter no text",QMessageBox::Ok);
 
     Qt::CaseSensitivity cs = checkBox1->isChecked() ? Qt::CaseSensitive\
                                                     :Qt::CaseInsensitive;
