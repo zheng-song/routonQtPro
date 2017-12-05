@@ -189,23 +189,7 @@ void Widget::slotVideoStarted()
 #endif
 
 #ifdef ARM
-
-    if(access("/tmp/cmd_result", F_OK) == -1)
-        mkfifo("/tmp/cmd_result",S_IFIFO | 0777);
     int i =0;
-    do{
-        resultFd = open("/tmp/cmd_result",O_RDONLY);
-        i++;
-    }while(resultFd<0 &&  i<50);
-    if(resultFd == -1)
-    {
-//        qDebug()<<QString("open /tmp/cmd_result failed")<<endl;
-        QMessageBox::warning(this,"Warning",\
-                                     "open pipe /tmp/cmd_result failed,quit now!!!",QMessageBox::Ok);
-        this->close();
-    }
-
-    qDebug()<<QString("open /tmp/cmd_result successful")<<endl;
 
     if(access("/tmp/cmd_pipe", F_OK) == -1)
         mkfifo("/tmp/cmd_pipe",S_IFIFO | 0777);
@@ -223,6 +207,21 @@ void Widget::slotVideoStarted()
 
     qDebug()<<QString("open /tmp/cmd_pipe successful")<<endl;
 
+    if(access("/tmp/cmd_result", F_OK) == -1)
+        mkfifo("/tmp/cmd_result",S_IFIFO | 0777);
+    i = 0;
+    do{
+        resultFd = open("/tmp/cmd_result",O_RDONLY);
+        i++;
+    }while(resultFd<0 &&  i<50);
+    if(resultFd == -1)
+    {
+        QMessageBox::warning(this,"Warning",\
+                                     "open pipe /tmp/cmd_result failed,quit now!!!",QMessageBox::Ok);
+        this->close();
+    }
+
+    qDebug()<<QString("open /tmp/cmd_result successful")<<endl;
 
     status = write(My_cmdPipeFd,"t \n",4);
     char buffer[128];
@@ -279,7 +278,6 @@ void Widget::slotOpenFile()
 
    if( !currentFileName.isEmpty() )
     {
-        qDebug()<<QString("file name is:%1").arg(currentFileName);
         playVideoDelay->start(100);
     }
 }

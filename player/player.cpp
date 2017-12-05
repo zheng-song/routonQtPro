@@ -44,7 +44,8 @@ void Player::play(const QString &fileName)
 #endif
 
 #ifdef ARM
-    programs = "/mnt/udisk/video/video";
+//    programs = "/mnt/udisk/video/video";
+    programs = "video";
     args <<"2";
 #endif
     args << fileName;
