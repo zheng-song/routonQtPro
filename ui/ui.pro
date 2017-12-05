@@ -32,12 +32,16 @@ SOURCES += \
         mainwindow.cpp \
     finddialog.cpp \
     analogclock.cpp \
-    rs232.cpp
+    rs232.cpp \
+    spreadsheet.cpp \
+    mymainwindow.cpp
 
 HEADERS += \
         mainwindow.h \
     finddialog.h \
     analogclock.h \
-    rs232.h
+    rs232.h \
+    spreadsheet.h \
+    mymainwindow.h
 
 FORMS +=
