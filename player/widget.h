@@ -35,6 +35,7 @@ protected slots:
     void slotGetTimeInfo();
     void slotCloseAPP();
     void slotSliderReleased();
+    void slotSliderMoved(int);
     void slotStepChange(int);
     void slotPlayVideo();
 

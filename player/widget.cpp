@@ -71,8 +71,7 @@ Widget::Widget(QWidget *parent)
     connect(videoSlider, SIGNAL(valueChanged(int)),this,SLOT(slotSliderChanged(int)));
     connect(videoSlider,SIGNAL(sliderReleased()),this,SLOT(slotSliderReleased()));
     connect(videoSlider,SIGNAL(actionTriggered(int)),this,SLOT( slotStepChange(int)));
-    connect(videoSlider,SIGNAL(actionTriggered(int)),this,SLOT( slotStepChange(int)));
-//    connect(videoSlider,SIGNAL(sliderMoved(int)),this,SLOT(slotStepChange(int)/*setSliderPosition(int)*/));
+    connect(videoSlider,SIGNAL(sliderMoved(int)),this,SLOT(slotSliderMoved(int)));
 
     buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(openFileButton);
@@ -123,12 +122,21 @@ Widget::~Widget()
 
 void Widget::slotStepChange(int value)
 {
+    videoTime->stop();
     qDebug()<<QString("slot Step Change %1").arg(value)<<endl;
 
 #ifdef PC
-    float time =(float)(videoSlider->value()+1000) / 100.0;
-    qDebug()<<"time is: "<<time<<endl;
-    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+    if(value == 3)
+    {
+        float time =(float)(videoSlider->value() + 1000) / 100.0;
+        player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+    }
+    else if(value == 4)
+    {
+        float time =(float)(videoSlider->value() - 1000) / 100.0;
+        player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+    }
+
 #endif
 
 #ifdef ARM
@@ -140,6 +148,8 @@ void Widget::slotStepChange(int value)
 
     status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
 #endif
+
+    videoTime->start();
 
 }
 
@@ -255,6 +265,7 @@ void Widget::slotVideoStarted()
 void Widget::slotSliderReleased()
 {
     qDebug()<<"videoSlider->value():"<<videoSlider->value()<<endl;
+    videoTime->start();
 #ifdef PC
     float time =(float)(videoSlider->value()) / 100.0;
     qDebug()<<"time is: "<<time<<endl;
@@ -265,6 +276,26 @@ void Widget::slotSliderReleased()
     QString tmp;
     tmp = "a "+QString::number(videoSlider->value())+".00 \n";
     status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
+#endif
+
+}
+
+void Widget::slotSliderMoved(int)
+{
+    videoTime->stop();//暂时终止计时器,在用户拖动过程中不修改slider的值
+#if 0
+#ifdef PC
+    float time =(float)(videoSlider->value()) / 100.0;
+    qDebug()<<"time is: "<<time<<endl;
+    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+#endif
+
+#ifdef ARM
+    QString tmp;
+    tmp = "a "+QString::number(videoSlider->value())+".00 \n";
+    status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
+#endif
+
 #endif
 
 }
@@ -312,8 +343,6 @@ void Widget::slotStop()
     volDown->setEnabled(false);
 }
 
-
-
 void Widget::slotCloseAPP()
 {
     player->controlCmd("quit\n");
@@ -345,7 +374,7 @@ void Widget::slotVideoDataReceive()
     while( player->mplayerProcess->canReadLine() )
     {
         QString message = player->mplayerProcess->readLine();
-//        qDebug()<<"message is:"<<message<<endl;
+//        qDebug()<<"message is:videoTime"<<message<<endl;
 #ifdef PC
         QStringList messageList = message.split("=");
         if(messageList[0] == "ANS_TIME_POSITION")
@@ -389,6 +418,7 @@ void Widget::slotVolumeDown()
 #endif
 
 }
+
 
 void Widget::slotSliderChanged(int value)
 {
