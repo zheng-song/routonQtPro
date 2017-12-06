@@ -32,6 +32,7 @@ protected slots:
     void slotVideoDataReceive();
     void slotVideoStarted();
     void slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void slotErrorOccurred(QProcess::ProcessError errorNum);
     void slotGetTimeInfo();
     void slotCloseAPP();
     void slotSliderReleased();
@@ -40,6 +41,9 @@ protected slots:
     void slotPlayVideo();
 
 private:
+//    void paintEvent(QPaintEvent *);
+
+
     Player * player;
 
     QPushButton * openFileButton;

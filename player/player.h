@@ -4,8 +4,8 @@
 #include <QWidget>
 #include <QProcess>
 
-#define PC
-//#define ARM
+//#define PC
+#define ARM
 
 class Player : public QWidget
 {
@@ -21,13 +21,12 @@ public:
 
 signals:
     void started();
-    void error(QProcess::ProcessError);
     void finished(int, QProcess::ExitStatus);
     void readyReadStandardOutput();
+    void error(QProcess::ProcessError);
 
 protected:
     void resizeEvent(QResizeEvent * event);
-    void mouseDoubleClickEvent(QMouseEvent *);
 
 private:
     QWidget     * renderTarget;

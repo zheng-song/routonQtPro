@@ -7,11 +7,13 @@
 
 Widget::Widget(QWidget *parent)
     : QMainWindow(parent),currentFileName(""),
-      videoSpeed(1),isDoubleClicked(0)
+      videoSpeed(1),isDoubleClicked(0),
+      resultFd(-1),My_cmdPipeFd(-1)
 {
-    setAutoFillBackground(true);
-    setStyleSheet("QWidget{background-color:rgb(255,255,255);}");//rgb(255,255,255) white rgb(0,0,0) black
-    setAttribute(Qt::WA_TranslucentBackground,true);
+//    setAutoFillBackground(true);
+//    setStyleSheet("QWidget{background-color:rgb(0,0,0);}");//rgb(255,255,255) white rgb(0,0,0) black
+//    setAttribute(Qt::WA_TranslucentBackground,true);
+//    this->setAttribute(Qt::WA_OpaquePaintEvent,true);
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 
     openFileButton = new QPushButton(QIcon(tr(":/icon/images/openfile.png")), tr(""));
@@ -108,6 +110,7 @@ Widget::Widget(QWidget *parent)
             this,SLOT(slotVideoFinished(int,QProcess::ExitStatus)));
     connect(player,SIGNAL(readyReadStandardOutput()),\
             this,SLOT(slotVideoDataReceive()));
+    connect(player,SIGNAL(error(QProcess::ProcessError)),this,SLOT(slotErrorOccurred(QProcess::ProcessError)));
 
 /***********************定时1秒获取MPlayer的时间信息1次*******************************/
     videoTime = new QTimer(this);
@@ -204,6 +207,7 @@ void Widget::slotVideoStarted()
     if(access("/tmp/cmd_pipe", F_OK) == -1)
         mkfifo("/tmp/cmd_pipe",S_IFIFO | 0777);
     i = 0;
+
     do{
         My_cmdPipeFd = open("/tmp/cmd_pipe",O_WRONLY);
         i++;
@@ -216,6 +220,7 @@ void Widget::slotVideoStarted()
     }
 
     qDebug()<<QString("open /tmp/cmd_pipe successful")<<endl;
+
 
     if(access("/tmp/cmd_result", F_OK) == -1)
         mkfifo("/tmp/cmd_result",S_IFIFO | 0777);
@@ -230,7 +235,6 @@ void Widget::slotVideoStarted()
                                      "open pipe /tmp/cmd_result failed,quit now!!!",QMessageBox::Ok);
         this->close();
     }
-
     qDebug()<<QString("open /tmp/cmd_result successful")<<endl;
 
     status = write(My_cmdPipeFd,"t \n",4);
@@ -258,6 +262,7 @@ void Widget::slotVideoStarted()
 
     playButton->setIcon(QIcon(":/icon/images/pause.png"));
     playButton->setToolTip("pause");
+
     videoTime->start(1000);
 }
 
@@ -302,15 +307,24 @@ void Widget::slotSliderMoved(int)
 
 void Widget::slotOpenFile()
 {
-    qDebug()<<"in open File";
+    slotPlay();
+//    this->hide();
     currentFileName.clear();
     currentFileName = QFileDialog::getOpenFileName(this, tr("打开媒体文件"), tr("/home/zs/qtBuild/video/"),
                 tr("Video files(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav);; All files ( *.* );;"));
 
-   if( !currentFileName.isEmpty() )
+    qDebug()<<currentFileName<<endl;
+    if( !currentFileName.isEmpty() )
     {
         playVideoDelay->start(100);
+        return ;
     }
+//    this->repaint(0,0,this->width(),this->height());
+
+//    this->hide();
+//    this->show();
+    slotPlay();
+    return ;
 }
 
 void Widget::slotPlayVideo()
@@ -349,12 +363,43 @@ void Widget::slotCloseAPP()
     this->close();
 }
 
+void Widget::slotErrorOccurred(QProcess::ProcessError errorNum)
+{
+    qDebug() <<"video process start error, the error state is :"<<errorNum<<endl;
+}
+
+void Widget::slotPlay()
+{
+    if(playButton->toolTip() == "pause")
+    {
+        playButton->setIcon(QIcon(":/icon/images/play.png"));
+        playButton->setToolTip("play");
+    }
+    else if(playButton->toolTip() == "play")
+    {
+        playButton->setIcon(QIcon(":/icon/images/pause.png"));
+        playButton->setToolTip("pause");
+    }
+#ifdef PC
+    player->controlCmd("pause\n");
+#endif
+
+#ifdef ARM
+    status = write(My_cmdPipeFd,"p \n",4);
+    if(status != -1)
+        qDebug()<<"Write p for play/pause,status is:"<<status<<endl;
+    else
+        qDebug()<<"write p error"<<endl;
+#endif
+
+}
+
+
 void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     qDebug() <<"video play finished the exitCode is :"<<exitCode\
            <<"the exit status is "<<exitStatus<<endl;
 
-    currentFileName.clear();
     videoSlider->setEnabled(false);
     videoSlider->setValue(0);
     playButton->setIcon(QIcon(":/icon/images/play.png"));
@@ -464,34 +509,6 @@ void Widget::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 */
-
-void Widget::slotPlay()
-{
-    if( !currentFileName.isEmpty() )
-    {
-        if(playButton->toolTip() == "pause")
-        {
-            playButton->setIcon(QIcon(":/icon/images/play.png"));
-            playButton->setToolTip("play");
-        }
-        else if(playButton->toolTip() == "play")
-        {
-            playButton->setIcon(QIcon(":/icon/images/pause.png"));
-            playButton->setToolTip("pause");
-        }
-#ifdef PC
-        player->controlCmd("pause\n");
-#endif
-
-#ifdef ARM
-        status = write(My_cmdPipeFd,"p \n",4);
-        if(status != -1)
-            qDebug()<<"Write p for play/pause,status is:"<<status<<endl;
-        else
-            qDebug()<<"write p error"<<endl;
-#endif
-    }
-}
 
 void Widget::slotStep()
 {

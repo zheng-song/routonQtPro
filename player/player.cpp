@@ -6,7 +6,7 @@ Player::Player(QWidget * parent)
 {
 
     renderTarget = new QWidget(this);
-    renderTarget->setAttribute(Qt::WA_OpaquePaintEvent);
+    renderTarget->setAttribute(Qt::WA_OpaquePaintEvent,true);
     timer = new QTimer;
     mplayerProcess = new QProcess(this);
 
@@ -29,8 +29,8 @@ void Player::play(const QString &fileName)
     mplayerProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(mplayerProcess,SIGNAL( readyReadStandardOutput() ),this,SIGNAL(readyReadStandardOutput() ));
     connect(mplayerProcess,SIGNAL( started() ),this,SIGNAL( started() ));
-    connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),\
-            this,SIGNAL(finished(int,QProcess::ExitStatus)));
+    connect(mplayerProcess,SIGNAL( errorOccurred(QProcess::ProcessError)),this,SIGNAL(error(QProcess::ProcessError)));
+    connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),this,SIGNAL(finished(int,QProcess::ExitStatus)));
     QStringList args;
     QString programs;
 #ifdef  PC
@@ -44,46 +44,13 @@ void Player::play(const QString &fileName)
 #endif
 
 #ifdef ARM
-//    programs = "/mnt/udisk/video/video";
-    programs = "video";
+    programs = "/usr/local/bin/video";
     args <<"2";
 #endif
     args << fileName;
+
     mplayerProcess->start(programs, args);
 }
-
-
-void Player::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    qDebug()<<"in mouseDoubleClickEvent!!!!"<<endl;
-
-    if(event->buttons() == Qt::LeftButton)
-    {
-        isDoubleClick++;
-        if(isDoubleClick == 1)
-        {
-            timer->start(300);
-        }
-
-        if(isDoubleClick == 2)
-        {
-            qDebug()<<"3"<<endl;
-
-            isDoubleClick =0;
-            timer->stop();
-            if(this->isFullScreen())
-            {
-                this->showMinimized();
-            }
-            else
-            {
-                this->showFullScreen();
-            }
-        }
-    }
-}
-
-
 
 void Player::controlCmd(const QString &cmd)
 {
