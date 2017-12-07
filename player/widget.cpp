@@ -10,72 +10,11 @@ Widget::Widget(QWidget *parent)
       videoSpeed(1),
       resultFd(-1),My_cmdPipeFd(-1)
 {
-//    setAutoFillBackground(true);
-//    setStyleSheet("QWidget{background-color:rgb(0,0,0);}");//rgb(255,255,255) white rgb(0,0,0) black
-//    setAttribute(Qt::WA_TranslucentBackground,true);
-//    this->setAttribute(Qt::WA_OpaquePaintEvent,true);
-//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
+    mplayerProcess = new QProcess;
 
-    openFileButton = new QPushButton(QIcon(tr(":/icon/images/openfile.png")), tr(""));
-    openFileButton->setFlat(true);//设置按钮无边框
-    openFileButton->setToolTip("open file");
-    connect(openFileButton, SIGNAL(clicked()), this, SLOT(slotOpenFile()));
+    createButton();
 
-    playButton = new QPushButton(QIcon(tr(":/icon/images/play.png")), tr(""));
-    playButton->setEnabled(false);
-    playButton->setToolTip("play");
-    playButton->setFlat(true); //设置按钮无边框
-    connect(playButton, SIGNAL(clicked()), this, SLOT(slotPlay()));
-
-    stopButton = new QPushButton(QIcon(tr(":/icon/images/stop.png")), tr(""));
-    stopButton->setToolTip("close");
-    stopButton->setFlat(true);
-    stopButton->setEnabled(false);
-    connect(stopButton, SIGNAL(clicked()), this, SLOT(slotStop()));
-
-    closeButton = new QPushButton(QIcon(":/icon/images/closeHovered.png"),"");
-    closeButton->setToolTip("quit");
-    closeButton->setFlat(true);
-    connect(closeButton,SIGNAL(clicked(bool)),this,SLOT(slotCloseAPP()));
-
-    backwardButton = new QPushButton(QIcon(tr(":/icon/images/backward.png")), tr(""));
-    backwardButton->setEnabled(false);
-    backwardButton->setFlat(true);
-    connect(backwardButton,SIGNAL(clicked(bool)),this,SLOT(slotBackward()));
-
-    stepButton = new QPushButton(QIcon(tr(":/icon/images/step.png")), tr(""));
-    stepButton->setEnabled(false);
-    stepButton->setFlat(true);
-    connect(stepButton,SIGNAL(clicked(bool)),this,SLOT(slotStep()));
-
-    volUp = new QPushButton(QIcon( tr(":/icon/images/volumeHovered.png")), tr("") );
-    volUp->setEnabled(false);
-    volUp->setFlat(true);
-    volUp->setToolTip("volUp");
-    connect(volUp,SIGNAL(clicked(bool)),this,SLOT(slotVolumeUp()));
-
-    volDown = new QPushButton(QIcon( tr(":/icon/images/volume.png")),tr(""));
-    volDown->setEnabled(false);
-    volDown->setFlat(true);
-    volDown->setToolTip("volDown");
-    connect(volDown,SIGNAL(clicked(bool)),this,SLOT(slotVolumeDown()));
-
-
-    muteButton = new QPushButton(QIcon(tr(":/icon/images/mute.png")), tr(""));
-    muteButton->setToolTip("mute-off");
-    muteButton->setFlat(true);
-    muteButton->setEnabled(false);
-    connect(muteButton,SIGNAL(clicked(bool)),this,SLOT(slotMute()));
-
-
-    videoSlider = new QSlider(Qt::Horizontal);
-    videoSlider->setEnabled(false);
-    connect(videoSlider, SIGNAL(valueChanged(int)),this,SLOT(slotSliderChanged(int)));
-    connect(videoSlider,SIGNAL(sliderReleased()),this,SLOT(slotSliderReleased()));
-    connect(videoSlider,SIGNAL(actionTriggered(int)),this,SLOT( slotStepChange(int)));
-    connect(videoSlider,SIGNAL(sliderMoved(int)),this,SLOT(slotSliderMoved(int)));
-
-    buttonLayout = new QHBoxLayout();
+    buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(openFileButton);
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(volDown);
@@ -88,11 +27,12 @@ Widget::Widget(QWidget *parent)
     buttonLayout->addWidget(closeButton);
     buttonLayout->setSpacing(10);
 
-//    player->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-//    player->setAutoFillBackground(true);
-//    player->setAttribute(Qt::WA_TranslucentBackground,true);
 
     label = new QLabel;
+//    label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+//    label->setAutoFillBackground(true);
+//    label->setAttribute(Qt::WA_TranslucentBackground,true);
+//    label->setStyleSheet("QWidget{background-color:rgb(180,180,180);}");
 
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -106,7 +46,6 @@ Widget::Widget(QWidget *parent)
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 
-    mplayerProcess = new QProcess;
 
 /***********************定时1秒获取MPlayer的时间信息1次*******************************/
     videoTime = new QTimer(this);
@@ -114,33 +53,66 @@ Widget::Widget(QWidget *parent)
     connect(videoTime,SIGNAL(timeout()),this,SLOT(slotGetTimeInfo()));
     connect(playVideoDelay,SIGNAL(timeout()),this,SLOT(slotPlayVideo()));
 
-
-    //    setAutoFillBackground(true);
-    //    setStyleSheet("QWidget{background-color:rgb(0,0,0);}");//rgb(255,255,255) white rgb(0,0,0) black
-    //    setAttribute(Qt::WA_TranslucentBackground,true);
-    //    this->setAttribute(Qt::WA_OpaquePaintEvent,true);
-    //    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
+//    setAutoFillBackground(true);
+//    setAttribute(Qt::WA_TranslucentBackground,true);
+    setStyleSheet("QWidget{background-color:rgba(100,100,100,255);}");//rgb(255,255,255) white rgb(0,0,0) black
+//    setAttribute(Qt::WA_OpaquePaintEvent,true);
+//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 }
 
 Widget::~Widget()
 { }
 
+void Widget::slotOpenTestDialog()
+{
+    qDebug()<<"slotOpenTestDialog"<<endl;
+    QWidget wg;
+
+    wg.setAutoFillBackground(true);
+    wg.setAttribute(Qt::WA_TranslucentBackground,true);
+    wg.resize(300,200);
+
+    QPushButton bt("ok",&wg);
+    connect(&bt,SIGNAL(clicked(bool)),&wg,SLOT(close()));
+    wg.show();
+    QEventLoop tloop;
+    connect(&wg,SIGNAL(finished(int)),&tloop,SLOT(quit()));
+    tloop.exec(QEventLoop::AllEvents);
+
+}
+
+
+void Widget::fileSelectDialog(QString &fileName)
+{
+    QFileDialog dlg(this);
+    dlg.setFileMode(QFileDialog::ExistingFile);
+    dlg.setViewMode(QFileDialog::Detail);
+
+    dlg.setAutoFillBackground(true);
+    dlg.setAttribute(Qt::WA_TranslucentBackground);
+
+    dlg.setNameFilter(tr("Video(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav)"));
+
+    fileName = dlg.getOpenFileName();
+
+
+    qDebug()<<fileName<<endl;
+}
+
 void Widget::slotOpenFile()
 {
     slotPlay();
-//    this->hide();
     currentFileName.clear();
-    currentFileName = QFileDialog::getOpenFileName(this, tr("打开媒体文件"), tr("/home/zs/qtBuild/video/"),
-                tr("Video files(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav);; All files ( *.* );;"));
 
-    qDebug()<<currentFileName<<endl;
+    fileSelectDialog(currentFileName);
+//    currentFileName = QFileDialog::getOpenFileName(this, tr("打开媒体文件"), tr("."),
+//                tr("Video files(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav);; All files ( *.* );;"));
+
     if( !currentFileName.isEmpty() )
     {
         playVideoDelay->start(100);
         return ;
     }
-//    this->repaint(0,0,this->width(),this->height());
-
 //    this->hide();
 //    this->show();
     slotPlay();
@@ -149,7 +121,7 @@ void Widget::slotOpenFile()
 
 void Widget::paintEvent(QPaintEvent *event)
 {
-    qDebug()<<"paint event"<<endl;
+//    qDebug()<<"paint event"<<endl;
 }
 
 void Widget::slotStepChange(int value)
@@ -339,7 +311,7 @@ void Widget::slotPlayVideo()
     programs = "mplayer";
     args << "-slave";           //使用slave模式
     args << "-quiet";           //不要输出冗余信息
-    args << "-wid"<<QString::number(this->winId());
+    args << "-wid"<<QString::number(label->winId());
     args << "-zoom";
     args << "-vo";
     args << "x11";
@@ -541,38 +513,60 @@ void Widget::slotMute()
 
 }
 
-void Widget::playVideo(const QString &fileName)
+void Widget::createButton()
 {
-    if(mplayerProcess->state()==QProcess::Running)
-    {
-        mplayerProcess->kill();
-        mplayerProcess->waitForFinished(-1);
-        qDebug()<<"old process is finished"<<endl;
-        delete mplayerProcess;
-        mplayerProcess = new QProcess(this);
-    }
-    mplayerProcess->setProcessChannelMode(QProcess::MergedChannels);
-    connect(mplayerProcess,SIGNAL( readyReadStandardOutput() ),this,SIGNAL(readyReadStandardOutput() ));
-    connect(mplayerProcess,SIGNAL( started() ),this,SIGNAL( started() ));
-    connect(mplayerProcess,SIGNAL( errorOccurred(QProcess::ProcessError)),this,SIGNAL(error(QProcess::ProcessError)));
-    connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),this,SIGNAL(finished(int,QProcess::ExitStatus)));
-    QStringList args;
-    QString programs;
-#ifdef  PC
-    programs = "mplayer";
-    args << "-slave";           //使用slave模式
-    args << "-quiet";           //不要输出冗余信息
-    args << "-wid"<<QString::number(this->winId());
-    args << "-zoom";
-    args << "-vo";
-    args << "x11";
-#endif
+    openFileButton = new QPushButton(QIcon(tr(":/icon/images/openfile.png")), tr(""));
+    playButton = new QPushButton(QIcon(tr(":/icon/images/play.png")), tr(""));
+    stopButton = new QPushButton(QIcon(tr(":/icon/images/stop.png")), tr(""));
+    closeButton = new QPushButton(QIcon(":/icon/images/closeHovered.png"),"");
+    backwardButton = new QPushButton(QIcon(tr(":/icon/images/backward.png")), tr(""));
+    stepButton = new QPushButton(QIcon(tr(":/icon/images/step.png")), tr(""));
+    volUp = new QPushButton(QIcon( tr(":/icon/images/volumeHovered.png")), tr(""));
+    volDown = new QPushButton(QIcon( tr(":/icon/images/volume.png")),tr(""));
+    muteButton = new QPushButton(QIcon(tr(":/icon/images/mute.png")), tr(""));
 
-#ifdef ARM
-    programs = "/usr/local/bin/video";
-    args <<"2";
-#endif
-    args << fileName;
+    openFileButton->setFlat(true);//设置按钮无边框
+    playButton->setFlat(true); //设置按钮无边框
+    stopButton->setFlat(true);
+    closeButton->setFlat(true);
+    backwardButton->setFlat(true);
+    stepButton->setFlat(true);
+    volUp->setFlat(true);
+    volDown->setFlat(true);
+    muteButton->setFlat(true);
 
-    mplayerProcess->start(programs, args);
+    openFileButton->setToolTip("open file");
+    playButton->setToolTip("play");
+    stopButton->setToolTip("close");
+    closeButton->setToolTip("quit");
+    volUp->setToolTip("volUp");
+    volDown->setToolTip("volDown");
+    muteButton->setToolTip("mute-off");
+
+    playButton->setEnabled(false);
+    stopButton->setEnabled(false);
+    backwardButton->setEnabled(false);
+    stepButton->setEnabled(false);
+    volUp->setEnabled(false);
+    volDown->setEnabled(false);
+    muteButton->setEnabled(false);
+
+//    connect(openFileButton, SIGNAL(clicked()), this, SLOT(slotOpenFile()));
+    connect(openFileButton, SIGNAL(clicked()), this, SLOT(slotOpenTestDialog()));
+
+    connect(playButton, SIGNAL(clicked()), this, SLOT(slotPlay()));
+    connect(stopButton, SIGNAL(clicked()), this, SLOT(slotStop()));
+    connect(closeButton,SIGNAL(clicked(bool)),this,SLOT(slotCloseAPP()));
+    connect(backwardButton,SIGNAL(clicked(bool)),this,SLOT(slotBackward()));
+    connect(stepButton,SIGNAL(clicked(bool)),this,SLOT(slotStep()));
+    connect(volUp,SIGNAL(clicked(bool)),this,SLOT(slotVolumeUp()));
+    connect(volDown,SIGNAL(clicked(bool)),this,SLOT(slotVolumeDown()));
+    connect(muteButton,SIGNAL(clicked(bool)),this,SLOT(slotMute()));
+
+    videoSlider = new QSlider(Qt::Horizontal);
+    videoSlider->setEnabled(false);
+    connect(videoSlider, SIGNAL(valueChanged(int)),this,SLOT(slotSliderChanged(int)));
+    connect(videoSlider,SIGNAL(sliderReleased()),this,SLOT(slotSliderReleased()));
+    connect(videoSlider,SIGNAL(actionTriggered(int)),this,SLOT( slotStepChange(int)));
+    connect(videoSlider,SIGNAL(sliderMoved(int)),this,SLOT(slotSliderMoved(int)));
 }
