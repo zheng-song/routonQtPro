@@ -25,13 +25,8 @@ signals:
     void readyReadStandardOutput();
     void error(QProcess::ProcessError);
 
-protected:
-    void resizeEvent(QResizeEvent * event);
-
 private:
     QWidget     * renderTarget;
-    QTimer      *timer;
-    int         isDoubleClick;
 };
 
 #endif // PLAYER_H

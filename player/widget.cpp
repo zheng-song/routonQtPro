@@ -7,7 +7,7 @@
 
 Widget::Widget(QWidget *parent)
     : QMainWindow(parent),currentFileName(""),
-      videoSpeed(1),isDoubleClicked(0),
+      videoSpeed(1),
       resultFd(-1),My_cmdPipeFd(-1)
 {
 //    setAutoFillBackground(true);
@@ -122,6 +122,32 @@ Widget::Widget(QWidget *parent)
 Widget::~Widget()
 { }
 
+void Widget::slotOpenFile()
+{
+    slotPlay();
+//    this->hide();
+    currentFileName.clear();
+    currentFileName = QFileDialog::getOpenFileName(this, tr("打开媒体文件"), tr("/home/zs/qtBuild/video/"),
+                tr("Video files(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav);; All files ( *.* );;"));
+
+    qDebug()<<currentFileName<<endl;
+    if( !currentFileName.isEmpty() )
+    {
+        playVideoDelay->start(100);
+        return ;
+    }
+//    this->repaint(0,0,this->width(),this->height());
+
+//    this->hide();
+//    this->show();
+    slotPlay();
+    return ;
+}
+
+void Widget::paintEvent(QPaintEvent *event)
+{
+    qDebug()<<"paint event"<<endl;
+}
 
 void Widget::slotStepChange(int value)
 {
@@ -266,7 +292,6 @@ void Widget::slotVideoStarted()
     videoTime->start(1000);
 }
 
-
 void Widget::slotSliderReleased()
 {
     qDebug()<<"videoSlider->value():"<<videoSlider->value()<<endl;
@@ -303,28 +328,6 @@ void Widget::slotSliderMoved(int)
 
 #endif
 
-}
-
-void Widget::slotOpenFile()
-{
-    slotPlay();
-//    this->hide();
-    currentFileName.clear();
-    currentFileName = QFileDialog::getOpenFileName(this, tr("打开媒体文件"), tr("/home/zs/qtBuild/video/"),
-                tr("Video files(*.rmvb *.rm *.avi *.wmv *.mkv *.asf *.3gp *.mov *.mp4 *.ogv *.wav);; All files ( *.* );;"));
-
-    qDebug()<<currentFileName<<endl;
-    if( !currentFileName.isEmpty() )
-    {
-        playVideoDelay->start(100);
-        return ;
-    }
-//    this->repaint(0,0,this->width(),this->height());
-
-//    this->hide();
-//    this->show();
-    slotPlay();
-    return ;
 }
 
 void Widget::slotPlayVideo()
@@ -394,7 +397,6 @@ void Widget::slotPlay()
 
 }
 
-
 void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     qDebug() <<"video play finished the exitCode is :"<<exitCode\
@@ -438,7 +440,6 @@ void Widget::slotVideoDataReceive()
     }
 }
 
-
 void Widget::slotVolumeUp()
 {
     qDebug()<<"slotVolumeUp"<<endl;
@@ -464,51 +465,10 @@ void Widget::slotVolumeDown()
 
 }
 
-
 void Widget::slotSliderChanged(int value)
 {
 //    qDebug()<<"current slider value is :"<<value<<endl;
 }
-/*
-void Widget::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    qDebug()<<"in Widget:: mouseDoubleClickEvent!!!!"<<endl;
-
-
-    if(event->buttons() == Qt::LeftButton)
-    {
-        qDebug()<<"1"<<endl;
-        isDoubleClicked++;
-        if(isDoubleClicked == 1)
-        {
-            qDebug()<<"2"<<endl;
-//            timer->start(300);
-        }
-
-        if(isDoubleClicked == 2)
-        {
-            qDebug()<<"3"<<endl;
-
-            isDoubleClicked =0;status = write(My_cmdPipeFd,"p",1);
-            if(status != -1)
-                qDebug()<<"Write p for play/pause,status is:"<<status<<endl;
-            else
-                qDebug()<<"write p error"<<endl;
-//            timer->stop();
-            if(this->isFullScreen())
-            {
-                qDebug()<<"4"<<endl;
-                this->showMinimized();
-            }
-            else
-            {
-                qDebug()<<"5"<<endl;
-                this->showFullScreen();
-            }
-        }
-    }
-}
-*/
 
 void Widget::slotStep()
 {

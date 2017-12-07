@@ -41,7 +41,7 @@ protected slots:
     void slotPlayVideo();
 
 private:
-//    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *);
 
 
     Player * player;
@@ -65,7 +65,6 @@ private:
     QString currentFileName;
 
     int         videoSpeed;
-    int         isDoubleClicked;
     int         status;
     int         resultFd;
     int         My_cmdPipeFd;

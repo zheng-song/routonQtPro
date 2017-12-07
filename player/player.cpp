@@ -2,14 +2,9 @@
 #include <QtWidgets>
 
 Player::Player(QWidget * parent)
-    : QWidget(parent),isDoubleClick(0)
+    : QWidget(parent)
 {
-
-    renderTarget = new QWidget(this);
-    renderTarget->setAttribute(Qt::WA_OpaquePaintEvent,true);
-    timer = new QTimer;
     mplayerProcess = new QProcess(this);
-
 }
 
 Player::~Player()
@@ -55,9 +50,4 @@ void Player::play(const QString &fileName)
 void Player::controlCmd(const QString &cmd)
 {
     mplayerProcess->write(cmd.toLatin1());
-}
-
-void Player::resizeEvent(QResizeEvent * event)
-{
-    renderTarget->resize(event->size());
 }
