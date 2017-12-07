@@ -14,7 +14,7 @@ Widget::Widget(QWidget *parent)
 //    setStyleSheet("QWidget{background-color:rgb(0,0,0);}");//rgb(255,255,255) white rgb(0,0,0) black
 //    setAttribute(Qt::WA_TranslucentBackground,true);
 //    this->setAttribute(Qt::WA_OpaquePaintEvent,true);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
+//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 
     openFileButton = new QPushButton(QIcon(tr(":/icon/images/openfile.png")), tr(""));
     openFileButton->setFlat(true);//设置按钮无边框
@@ -88,13 +88,15 @@ Widget::Widget(QWidget *parent)
     buttonLayout->addWidget(closeButton);
     buttonLayout->setSpacing(10);
 
-    player = new Player();
-    player->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    player->setAutoFillBackground(true);
-    player->setAttribute(Qt::WA_TranslucentBackground,true);
+//    player->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+//    player->setAutoFillBackground(true);
+//    player->setAttribute(Qt::WA_TranslucentBackground,true);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(player);
+    label = new QLabel;
+
+
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(label);
     mainLayout->addWidget(videoSlider);
     mainLayout->addLayout(buttonLayout);
     mainLayout->setMargin(0);
@@ -104,19 +106,20 @@ Widget::Widget(QWidget *parent)
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 
-
-    connect(player,SIGNAL(started()),this,SLOT(slotVideoStarted()));
-    connect(player,SIGNAL(finished(int,QProcess::ExitStatus)),\
-            this,SLOT(slotVideoFinished(int,QProcess::ExitStatus)));
-    connect(player,SIGNAL(readyReadStandardOutput()),\
-            this,SLOT(slotVideoDataReceive()));
-    connect(player,SIGNAL(error(QProcess::ProcessError)),this,SLOT(slotErrorOccurred(QProcess::ProcessError)));
+    mplayerProcess = new QProcess;
 
 /***********************定时1秒获取MPlayer的时间信息1次*******************************/
     videoTime = new QTimer(this);
     playVideoDelay = new QTimer(this);
     connect(videoTime,SIGNAL(timeout()),this,SLOT(slotGetTimeInfo()));
     connect(playVideoDelay,SIGNAL(timeout()),this,SLOT(slotPlayVideo()));
+
+
+    //    setAutoFillBackground(true);
+    //    setStyleSheet("QWidget{background-color:rgb(0,0,0);}");//rgb(255,255,255) white rgb(0,0,0) black
+    //    setAttribute(Qt::WA_TranslucentBackground,true);
+    //    this->setAttribute(Qt::WA_OpaquePaintEvent,true);
+    //    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 }
 
 Widget::~Widget()
@@ -158,12 +161,12 @@ void Widget::slotStepChange(int value)
     if(value == 3)
     {
         float time =(float)(videoSlider->value() + 1000) / 100.0;
-        player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+        mplayerProcess->write(QString("seek "+QString::number(time) +" 2\n").toLatin1());
     }
     else if(value == 4)
     {
         float time =(float)(videoSlider->value() - 1000) / 100.0;
-        player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+        mplayerProcess->write(QString("seek "+QString::number(time) +" 2\n").toLatin1());
     }
 
 #endif
@@ -189,7 +192,7 @@ void Widget::slotGetTimeInfo()
     #ifdef PC
         if(playButton->toolTip() == "pause")
         {
-            player->controlCmd("get_time_pos \n");
+            mplayerProcess->write(QString("get_time_pos \n").toLatin1());
         }
     #endif
 
@@ -197,15 +200,11 @@ void Widget::slotGetTimeInfo()
         status = write(My_cmdPipeFd,"c \n",4);
         if(status == -1)
             qDebug()<<"write My_cmdPipeFd c for get current time ERROR !!!!"<<endl;
-//        else
-//            qDebug()<<QString("write My_cmdPipeFd length is %1:").arg(status)<<endl;
 
         char buffer[128];
         status = read(resultFd,(void *)&buffer,sizeof(buffer));
         if(status == -1)
             qDebug()<<"read resultFd for get current time ERROR !!!!"<<endl;
-//        else
-//            qDebug()<<QString("read resultFd length is %1:").arg(status)<<endl;
 
         int time =(int)( ((QString)(QLatin1String((char *)&buffer))).toFloat() );
 //        qDebug()<<"current time is :"<<(QString)(QLatin1String((char *)&buffer))<<"time is:"<<time<<endl;
@@ -220,8 +219,7 @@ void Widget::slotVideoStarted()
     qDebug()<<"video started!!!"<<endl;
 
 #ifdef PC
-    player->controlCmd("get_time_length \n");
-
+    mplayerProcess->write(QString("get_time_length \n").toLatin1());
     videoSlider->setValue(0);
     videoSlider->setSingleStep(300);
     videoSlider->setPageStep(1000);
@@ -299,7 +297,7 @@ void Widget::slotSliderReleased()
 #ifdef PC
     float time =(float)(videoSlider->value()) / 100.0;
     qDebug()<<"time is: "<<time<<endl;
-    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
+    mplayerProcess->write(QString("seek "+QString::number(time) +" 2\n").toLatin1());
 #endif
 
 #ifdef ARM
@@ -313,37 +311,57 @@ void Widget::slotSliderReleased()
 void Widget::slotSliderMoved(int)
 {
     videoTime->stop();//暂时终止计时器,在用户拖动过程中不修改slider的值
-#if 0
-#ifdef PC
-    float time =(float)(videoSlider->value()) / 100.0;
-    qDebug()<<"time is: "<<time<<endl;
-    player->controlCmd(QString("seek "+QString::number(time) +" 2\n" ));
-#endif
-
-#ifdef ARM
-    QString tmp;
-    tmp = "a "+QString::number(videoSlider->value())+".00 \n";
-    status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
-#endif
-
-#endif
-
 }
 
 void Widget::slotPlayVideo()
 {
-    player->play(currentFileName);
     playVideoDelay->stop();
+
+    if(mplayerProcess->state()==QProcess::Running)
+    {
+        mplayerProcess->kill();
+        mplayerProcess->waitForFinished(-1);
+        qDebug()<<"old process is finished"<<endl;
+        delete mplayerProcess;
+        mplayerProcess = new QProcess(this);
+    }
+    mplayerProcess->setProcessChannelMode(QProcess::MergedChannels);
+    connect(mplayerProcess,SIGNAL(started()),this,SLOT(slotVideoStarted()));
+    connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),\
+            this,SLOT(slotVideoFinished(int,QProcess::ExitStatus)));
+    connect(mplayerProcess,SIGNAL(readyReadStandardOutput()),\
+            this,SLOT(slotVideoDataReceive()));
+    connect(mplayerProcess,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(slotErrorOccurred(QProcess::ProcessError)));
+
+    QStringList args;
+    QString programs;
+#ifdef  PC
+    programs = "mplayer";
+    args << "-slave";           //使用slave模式
+    args << "-quiet";           //不要输出冗余信息
+    args << "-wid"<<QString::number(this->winId());
+    args << "-zoom";
+    args << "-vo";
+    args << "x11";
+#endif
+
+#ifdef ARM
+    programs = "/usr/local/bin/video";
+    args <<"2";
+#endif
+    args << currentFileName;
+
+    mplayerProcess->start(programs, args);
 }
 
 void Widget::slotStop()
 {
 #ifdef PC
-    player->controlCmd("quit\n");
+    mplayerProcess->write(QString("quit \n").toLatin1());
 #endif
 
 #ifdef ARM
-    player->mplayerProcess->kill();
+    mplayerProcess->kill();
 #endif
 
     currentFileName.clear();
@@ -362,7 +380,7 @@ void Widget::slotStop()
 
 void Widget::slotCloseAPP()
 {
-    player->controlCmd("quit\n");
+    mplayerProcess->write(QString("quit \n").toLatin1());
     this->close();
 }
 
@@ -384,7 +402,7 @@ void Widget::slotPlay()
         playButton->setToolTip("pause");
     }
 #ifdef PC
-    player->controlCmd("pause\n");
+    mplayerProcess->write(QString("pause\n").toLatin1());
 #endif
 
 #ifdef ARM
@@ -418,10 +436,10 @@ void Widget::slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void Widget::slotVideoDataReceive()
 {
-    while( player->mplayerProcess->canReadLine() )
+    while( mplayerProcess->canReadLine() )
     {
-        QString message = player->mplayerProcess->readLine();
-//        qDebug()<<"message is:videoTime"<<message<<endl;
+        QString message = mplayerProcess->readLine();
+        qDebug()<<"message is:"<<message<<endl;
 #ifdef PC
         QStringList messageList = message.split("=");
         if(messageList[0] == "ANS_TIME_POSITION")
@@ -445,7 +463,7 @@ void Widget::slotVolumeUp()
     qDebug()<<"slotVolumeUp"<<endl;
 
 #ifdef PC
-    player->controlCmd("volume +1\n");
+    mplayerProcess->write(QString("volume +1\n").toLatin1());
 #endif
 
 #ifdef ARM
@@ -456,7 +474,7 @@ void Widget::slotVolumeUp()
 void Widget::slotVolumeDown()
 {
 #ifdef PC
-     player->controlCmd("volume -1\n");
+    mplayerProcess->write(QString("volume -1\n").toLatin1());
 #endif
 
 #ifdef ARM
@@ -476,7 +494,7 @@ void Widget::slotStep()
     if(videoSpeed < 4)
         videoSpeed+=1;
 #ifdef PC
-    player->controlCmd( QString("speed_set "+QString::number(videoSpeed)+"\n") );
+    mplayerProcess->write(QString("speed_set "+QString::number(videoSpeed)+"\n").toLatin1());
 #endif
 
 #ifdef ARM
@@ -492,7 +510,7 @@ void Widget::slotBackward()
     if(videoSpeed > 1)
         videoSpeed-=1;
 #ifdef PC
-    player->controlCmd( QString("speed_set "+QString::number(videoSpeed)+"\n") );
+    mplayerProcess->write(QString("speed_set "+QString::number(videoSpeed)+"\n").toLatin1());
 #endif
 
 #ifdef ARM
@@ -507,12 +525,12 @@ void Widget::slotMute()
 #ifdef PC
     if(muteButton->toolTip()=="mute-on")
     {
-        player->controlCmd("mute 0\n");
+        mplayerProcess->write(QString("mute 0\n").toLatin1());
         muteButton->setToolTip("mute-off");
     }
     else
     {
-        player->controlCmd("mute 1\n");
+        mplayerProcess->write(QString("mute 1\n").toLatin1());
         muteButton->setToolTip("mute-on");
     }
 #endif
@@ -523,3 +541,38 @@ void Widget::slotMute()
 
 }
 
+void Widget::playVideo(const QString &fileName)
+{
+    if(mplayerProcess->state()==QProcess::Running)
+    {
+        mplayerProcess->kill();
+        mplayerProcess->waitForFinished(-1);
+        qDebug()<<"old process is finished"<<endl;
+        delete mplayerProcess;
+        mplayerProcess = new QProcess(this);
+    }
+    mplayerProcess->setProcessChannelMode(QProcess::MergedChannels);
+    connect(mplayerProcess,SIGNAL( readyReadStandardOutput() ),this,SIGNAL(readyReadStandardOutput() ));
+    connect(mplayerProcess,SIGNAL( started() ),this,SIGNAL( started() ));
+    connect(mplayerProcess,SIGNAL( errorOccurred(QProcess::ProcessError)),this,SIGNAL(error(QProcess::ProcessError)));
+    connect(mplayerProcess,SIGNAL(finished(int,QProcess::ExitStatus)),this,SIGNAL(finished(int,QProcess::ExitStatus)));
+    QStringList args;
+    QString programs;
+#ifdef  PC
+    programs = "mplayer";
+    args << "-slave";           //使用slave模式
+    args << "-quiet";           //不要输出冗余信息
+    args << "-wid"<<QString::number(this->winId());
+    args << "-zoom";
+    args << "-vo";
+    args << "x11";
+#endif
+
+#ifdef ARM
+    programs = "/usr/local/bin/video";
+    args <<"2";
+#endif
+    args << fileName;
+
+    mplayerProcess->start(programs, args);
+}

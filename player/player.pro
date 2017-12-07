@@ -25,12 +25,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        widget.cpp \
-    player.cpp
+        widget.cpp
 
 HEADERS += \
-        widget.h \
-    player.h
+        widget.h
 
 RESOURCES += \
     icon.qrc

@@ -1,12 +1,16 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include "player.h"
 #include <QMainWindow>
+#include <QProcess>
+
+//#define PC
+#define ARM
 
 class QPushButton;
 class QSlider;
 class QHBoxLayout;
+class QLabel;
 
 class Widget : public QMainWindow
 {
@@ -42,9 +46,7 @@ protected slots:
 
 private:
     void paintEvent(QPaintEvent *);
-
-
-    Player * player;
+    void playVideo(const QString &fileName);
 
     QPushButton * openFileButton;
     QPushButton * playButton;
@@ -57,6 +59,7 @@ private:
     QPushButton * doubleSpeed;
     QSlider     * videoSlider;
     QPushButton * closeButton;
+    QLabel      * label;
 
     QHBoxLayout * buttonLayout;
 
@@ -68,6 +71,9 @@ private:
     int         status;
     int         resultFd;
     int         My_cmdPipeFd;
+
+    QProcess    * mplayerProcess;
+
 };
 
 #endif // WIDGET_H
