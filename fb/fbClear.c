@@ -87,9 +87,6 @@ int main()
 //    printf(" read a point of framebuffer:\n %d:%d:%d:%d\n %d:%d:%d:%d\n %d:%d:%d:%d\n",*(fbp),*(fbp+1),*(fbp+2),*(fbp+3),*(fbp+4),*(fbp+5),*(fbp+6),*(fbp+7),*(fbp+8),*(fbp+9),*(fbp+10),*(fbp+11));
 
 
-
-
-
 //    memset(fbp,0, screensize);
     for(int i = 0;i<screensize;i++)
     {
