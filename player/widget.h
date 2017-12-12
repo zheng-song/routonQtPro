@@ -58,9 +58,6 @@ private:
     QPushButton * doubleSpeed;
     QSlider     * videoSlider;
     QPushButton * closeButton;
-    QLabel      * label;
-    QFrame      * frame;
-    QWidget     *btWidget;
 
     QHBoxLayout * buttonLayout;
 

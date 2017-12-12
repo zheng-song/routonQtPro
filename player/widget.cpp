@@ -29,30 +29,14 @@ Widget::Widget(QWidget *parent)
     buttonLayout->addWidget(muteButton);
     buttonLayout->addWidget(closeButton);
     buttonLayout->setSpacing(10);
-//    buttonLayout->setMargin(0);
-
-
-//    label = new QLabel;
-//    label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-//    label->setAutoFillBackground(false);
-//    label->setAttribute(Qt::WA_TranslucentBackground,true);
-//    label->setStyleSheet("QWidget{background-color:rgba(0,0,0,255);}");
-
-
-//    frame = new QFrame;
-//    QVBoxLayout *vLayout = new QVBoxLayout;
-//    vLayout->addWidget(videoSlider);
-//    vLayout->addLayout(buttonLayout);
-//    vLayout->addSpacing(0);
-//    frame->setLayout(vLayout);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addStretch();
     mainLayout->addWidget(videoSlider);
-//    mainLayout->addWidget(frame);
     mainLayout->addLayout(buttonLayout);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
+
 
     QWidget *centralWidget = new QWidget;
     centralWidget->setLayout(mainLayout);
@@ -456,5 +440,6 @@ void Widget::slotClearFb()
     munmap(fbp, screensize);
 //    close(fbfd);
 
+    repaint(videoSlider->x(),videoSlider->y(),this->width(),(this->height()-videoSlider->x()));
     return ;
 }
