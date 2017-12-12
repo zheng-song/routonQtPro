@@ -30,8 +30,14 @@ Widget::Widget(QWidget *parent)
     buttonLayout->addWidget(closeButton);
     buttonLayout->setSpacing(10);
 
+    label = new QLabel;
+    label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    label->setAutoFillBackground(true);
+//    label->setAttribute(Qt::WA_TranslucentBackground,true);
+    label->setStyleSheet("QWidget{background-color:rgb(0,0,0);}");
+
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addStretch();
+    mainLayout->addWidget(label);
     mainLayout->addWidget(videoSlider);
     mainLayout->addLayout(buttonLayout);
     mainLayout->setMargin(0);
@@ -403,7 +409,8 @@ void Widget::slotClearFb()
     struct fb_var_screeninfo vinfo;
     long int screensize = 0;
     char *fbp = 0;
-    fbfd = open("/dev/fb0", O_RDWR);
+
+    fbfd = ::open("/dev/fb0", O_RDWR);
     if (!fbfd)
     {
         qDebug("Error: cannot open framebuffer device.\n");
@@ -438,7 +445,11 @@ void Widget::slotClearFb()
     }
 
     munmap(fbp, screensize);
-//    close(fbfd);
+
+    //Qt中无法直接使用linux的close函数,而应该用::来指定名字空间.因为widget本身就有close()函数
+    //为了区分全局函数和成员函数,就需要在全局函数前面加上:: ,否则调用的就是成员函数,如果直接写close(fd),
+    //那么就会调用widget的close()方法,但是这个方法是没有参数的,因此你的close(fd)会报错,匹配不到任何的原型.
+    ::close(fbfd);
 
     repaint(videoSlider->x(),videoSlider->y(),this->width(),(this->height()-videoSlider->x()));
     return ;
