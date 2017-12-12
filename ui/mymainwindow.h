@@ -40,7 +40,7 @@ private:
     void readSettings();
     void writeSettings();
     bool okToContinue();
-    bool loadFile(const QStirng &fileName);
+    bool loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     void updateRecentFileActions();

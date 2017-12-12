@@ -9,7 +9,7 @@ class SpreadSheet:public QTableWidget
     Q_OBJECT
 
 public:
-    SpreadSheet(QWidget *parent =0);
+    SpreadSheet(QTableWidget *parent =0);
     ~SpreadSheet();
 
 public slots:
