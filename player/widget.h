@@ -11,6 +11,7 @@ class QPushButton;
 class QSlider;
 class QHBoxLayout;
 class QLabel;
+class QFrame;
 
 class Widget : public QMainWindow
 {
@@ -35,20 +36,16 @@ protected slots:
     void slotVideoDataReceive();
     void slotVideoStarted();
     void slotVideoFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void slotErrorOccurred(QProcess::ProcessError errorNum);
     void slotGetTimeInfo();
     void slotCloseAPP();
     void slotSliderReleased();
     void slotSliderMoved(int);
     void slotStepChange(int);
     void slotPlayVideo();
-
-    void slotOpenTestDialog();
+    void slotClearFb();
 
 private:
-    void paintEvent(QPaintEvent *);
     void createButton();
-    void fileSelectDialog(QString &fileName);
 
     QPushButton * openFileButton;
     QPushButton * playButton;
@@ -62,11 +59,14 @@ private:
     QSlider     * videoSlider;
     QPushButton * closeButton;
     QLabel      * label;
+    QFrame      * frame;
+    QWidget     *btWidget;
 
     QHBoxLayout * buttonLayout;
 
     QTimer      * videoTime;
     QTimer      * playVideoDelay;
+    QTimer      * clearFbTimer;
     QString currentFileName;
 
     int         videoSpeed;
@@ -75,6 +75,7 @@ private:
     int         My_cmdPipeFd;
 
     QProcess    * mplayerProcess;
+    QProcess    *p;
 
 };
 
