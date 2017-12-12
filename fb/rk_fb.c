@@ -6,7 +6,9 @@
 #include <sys/mman.h>
 #include <memory.h>
 #include <errno.h>
-#include<stdlib.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
 
 #include "ion/ion.h"
 #include "rk_fb.h"
@@ -75,6 +77,7 @@ int rk_fb_open(struct fb *fb)
         printf("open %s failed.\n", FB0);
         return -1;
     }
+    printf("open %s successful.\n", FB0);
     return 0;
 }
 
@@ -414,9 +417,9 @@ int rk_fb_ui_dispblack(struct fb * fb)
     if (fb == 0)
         return -1;
 //在video层初始化的时候,不要让其将UI层的内容刷新掉.
-#if 0
+#if 1
     memset(fb->win0.buffer,
-           0, fb->win0.width * fb->win0.height * 4);
+           127, fb->win0.width * fb->win0.height * 4);
 #endif
 
     return 0;
@@ -737,6 +740,8 @@ struct fb* rk_fb_init(int pixel_format)
         return g_fb;
     }
 
+    printf("m_init rk_fb\n");
+
     rkfb_init_lock();
 
     g_fb = (struct fb*)calloc(1, sizeof(struct fb));
@@ -808,9 +813,9 @@ struct fb* rk_fb_init(int pixel_format)
         out_type = rk_fb_get_cvbsout_mode();
     }
     rk_fb_ui_init(g_fb, g_fb->vi.xres, g_fb->vi.yres, pixel_format);
-    rk_fb_video_init(g_fb, g_fb->vi.xres, g_fb->vi.yres);
-    rk_fb_config_init(g_fb);
-    rk_fb_set_out_device(out_type);
+//    rk_fb_video_init(g_fb, g_fb->vi.xres, g_fb->vi.yres);
+//    rk_fb_config_init(g_fb);
+//    rk_fb_set_out_device(out_type);
     return g_fb;
 }
 
@@ -818,10 +823,10 @@ int rk_fb_deinit(void)
 {
     printf("%s\n", __func__);
     if (g_fb) {
-        rk_fb_ui_dispblack(g_fb);
-        rk_fb_config_deinit(g_fb);
+//        rk_fb_ui_dispblack(g_fb);
+//        rk_fb_config_deinit(g_fb);
         rk_fb_ui_deinit(g_fb);
-        rk_fb_video_deinit(g_fb);
+//        rk_fb_video_deinit(g_fb);
         rk_fb_close(g_fb);
         memset(g_fb, 0, sizeof(struct fb));
         free(g_fb);
