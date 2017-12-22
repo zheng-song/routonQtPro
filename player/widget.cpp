@@ -33,7 +33,6 @@ Widget::Widget(QWidget *parent)
     label = new QLabel;
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     label->setAutoFillBackground(true);
-//    label->setAttribute(Qt::WA_TranslucentBackground,true);
     label->setStyleSheet("QWidget{background-color:rgb(0,0,0);}");
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -56,12 +55,6 @@ Widget::Widget(QWidget *parent)
     connect(playVideoDelay,SIGNAL(timeout()),this,SLOT(slotPlayVideo()));
     clearFbTimer = new QTimer;
     connect(clearFbTimer,SIGNAL(timeout()),this,SLOT(slotClearFb()));
-
-//    setAutoFillBackground(true);
-//    setAttribute(Qt::WA_TranslucentBackground,true);
-//    setStyleSheet("QWidget{background-color:rgba(100,100,100,255);}");//rgb(255,255,255) white rgb(0,0,0) black
-//    setAttribute(Qt::WA_OpaquePaintEvent,true);
-//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowCloseButtonHint/*WindowSystemMenuHint*/); // 设置成无边框对话框
 }
 
 Widget::~Widget()
@@ -264,6 +257,13 @@ void Widget::slotPlay()
         }
         else if(playButton->toolTip() == "play")
         {
+            if(videoSpeed != 1)
+            {
+                videoSpeed = 1;
+                QString tmp ="s "+QString::number(videoSpeed)+".00 \n";
+                qDebug()<<"slotStep write:"<<tmp<<endl;
+                status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
+            }
             playButton->setIcon(QIcon(":/icon/images/pause.png"));
             playButton->setToolTip("pause");
         }
@@ -305,12 +305,25 @@ void Widget::slotVideoDataReceive()
 
 void Widget::slotVolumeUp()
 {
-    qDebug()<<"slotVolumeUp"<<endl;
+    qDebug()<<"Volume Up"<<endl;
+    if(muteButton->toolTip() == "muteOn")
+    {
+        muteButton->setToolTip("muetOff");
+        write(My_cmdPipeFd,"m \n",4);
+    }
+
     status = write(My_cmdPipeFd,"+ \n",4);
 }
 
 void Widget::slotVolumeDown()
 {
+    qDebug()<<"Volume Down"<<endl;
+    if(muteButton->toolTip() == "muteOn")
+    {
+        muteButton->setToolTip("muetOff");
+        write(My_cmdPipeFd,"m \n",4);
+    }
+
     status = write(My_cmdPipeFd,"- \n",4);
 }
 
@@ -321,26 +334,36 @@ void Widget::slotSliderChanged(int value)
 
 void Widget::slotStep()
 {
-    qDebug()<<"now videoSpeed is:"<<videoSpeed<<endl;
     if(videoSpeed < 4)
         videoSpeed+=1;
     QString tmp ="s "+QString::number(videoSpeed)+".00 \n";
-    qDebug()<<"slotStep write:"<<tmp<<endl;
+    qDebug()<<"now videoSpeed is:"<<videoSpeed<<endl;
+
     status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
 }
 
 void Widget::slotBackward()
 {
-    qDebug()<<"now videoSpeed is:"<<videoSpeed<<endl;
     if(videoSpeed > 1)
         videoSpeed-=1;
     QString tmp ="s "+QString::number(videoSpeed)+".00 \n";
-    qDebug()<<"slotStep write:"<<tmp<<endl;
+    qDebug()<<"now videoSpeed is:"<<videoSpeed<<endl;
     status = write(My_cmdPipeFd,(tmp.toLatin1()).data(),tmp.length());
 }
 
 void Widget::slotMute()
 {
+    if(muteButton->toolTip() == "muteOn")
+    {
+        qDebug()<<"mute ON"<<endl;
+        muteButton->setToolTip("muetOff");
+    }
+    else
+    {
+        qDebug()<<"mute OFF"<<endl;
+        muteButton->setToolTip("muteOn");
+    }
+
     write(My_cmdPipeFd,"m \n",4);
 }
 
@@ -445,10 +468,6 @@ void Widget::slotClearFb()
     }
 
     munmap(fbp, screensize);
-
-    //Qt中无法直接使用linux的close函数,而应该用::来指定名字空间.因为widget本身就有close()函数
-    //为了区分全局函数和成员函数,就需要在全局函数前面加上:: ,否则调用的就是成员函数,如果直接写close(fd),
-    //那么就会调用widget的close()方法,但是这个方法是没有参数的,因此你的close(fd)会报错,匹配不到任何的原型.
     ::close(fbfd);
 
     repaint(videoSlider->x(),videoSlider->y(),this->width(),(this->height()-videoSlider->x()));

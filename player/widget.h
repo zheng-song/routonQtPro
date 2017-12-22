@@ -4,9 +4,6 @@
 #include <QMainWindow>
 #include <QProcess>
 
-//#define PC
-#define ARM
-
 class QPushButton;
 class QSlider;
 class QHBoxLayout;
